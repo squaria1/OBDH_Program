@@ -1,0 +1,170 @@
+/**
+ * \file main.c
+ * \brief Main program with state machine
+ * \author Mael Parot
+ * \version 1.0
+ * \date 16/05/2025
+ *
+ * Main program of the OBDH subsytem
+ *
+ */
+
+#include "configDefine.h"
+#include "statesDefine.h"
+#include "init.h"
+#include "controlMode.h"
+#include "safeMode.h"
+#include "regulate.h"
+#include "restart.h"
+
+ /**
+  * \brief main function of the program
+  *
+  * \return 0 if the program exits properly
+  */
+int main() {
+    stateDef        state = init;
+    statusErrDef    ret = noError;
+    int             retryCounter = 0;
+
+    while (state != ending) {
+        switch (state) {
+        case init: // OBDH and subsystems initialisation
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initOBDH();
+                if (ret == noError) {
+                    printf("init OBDH OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init OBDH!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initAOCS();
+                if (ret == noError) {
+                    printf("init AOCS OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init AOCS!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initTTC();
+                if (ret == noError) {
+                    printf("init TT&C OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init TT&C!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initPayload();
+                if (ret == noError) {
+                    printf("init Payload OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init Payload!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initIntersat();
+                if (ret == noError) {
+                    printf("init Intersat OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init Intersat!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initEPS();
+                if (ret == noError) {
+                    printf("init EPS OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init EPS!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initPPU();
+                if (ret == noError) {
+                    printf("init PPU OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init PPU!\n");
+                    retryCounter++;
+                }
+            }
+
+            printf("State has been changed to control mode\n");
+#ifdef _WIN32
+#else
+            ret = sendTelemToTTC(infoStateToControlMode);
+            if (ret == noError)
+                printf("sendTelemToTTC infoStateToControlMode OK\n");
+            else
+                printf("Error sendTelemToTTC infoStateToControlMode!\n");
+#endif
+            state = controlMode;
+            break;
+        case safeMode: // Enter safe mode procedure with telecommand or unable to regulate
+            break;
+        case controlMode: // Control subsystems (sensor acquisition, telemetry to/TC from TT&C)
+            ret = checkSensors();
+            if (ret == noError)
+                printf("Sensor check OK\n");
+            else if (ret == errSensorOutOfBounds)
+#ifdef _WIN32
+#else
+                ret = sendTelemToTTC(infoStateToRegulate);
+                if (ret == noError)
+                    printf("sendTelemToTTC infoStateToRegulate OK\n");
+                else
+                    printf("Error sendTelemToTTC infoStateToRegulate!\n");
+#endif
+                state = regulate;
+            else
+                printf("Error sensor check!\n");
+            ret = checkTC();
+            if (ret == noError)
+                printf("check TC backlog OK\n");
+            else
+                printf("Error check TC backlog!\n");
+            break;
+        case regulate: // Regulate subsystems when sensor out of bounds
+            break;
+        case restart: // Restart program with systemd
+            state = ending;
+            break;
+        default:
+            break;
+        }
+    }
+
+    return 0;
+}
