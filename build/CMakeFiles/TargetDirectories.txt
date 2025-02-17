@@ -1,3 +1,0 @@
-/home/squaria/OBDH_Program/build/CMakeFiles/OBDH_Program.dir
-/home/squaria/OBDH_Program/build/CMakeFiles/edit_cache.dir
-/home/squaria/OBDH_Program/build/CMakeFiles/rebuild_cache.dir
