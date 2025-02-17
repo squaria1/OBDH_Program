@@ -18,4 +18,22 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
+#include <unistd.h>
+
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+
+#include <linux/can.h>
+#include <linux/can/raw.h>
+
+statusErrDef closeCANSocket();
+statusErrDef freeOBDH();
+statusErrDef freeAOCS();
+statusErrDef freeTTC();
+statusErrDef freePayload();
+statusErrDef freeIntersat();
+statusErrDef freeEPS();
+statusErrDef freePPU();
+
 #endif

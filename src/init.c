@@ -10,11 +10,11 @@
  */
 #include "init.h"
 
-#ifdef _WIN32
-#else
+int socket_fd = 0;
+
 statusErrDef initCANSocket() {
 	statusErrDef ret = noError;
-	int s, i;
+	int i;
 	int nbytes;
 	struct sockaddr_can addr;
 	struct ifreq ifr;
@@ -22,25 +22,24 @@ statusErrDef initCANSocket() {
 
 	printf("CAN Sockets init\r\n");
 
-	if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+	if ((socket_fd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
 		perror("errCreateCANSocket");
 		return errCreateCANSocket;
 	}
 
 	strcpy(ifr.ifr_name, "vcan0");
-	ioctl(s, SIOCGIFINDEX, &ifr);
+	ioctl(socket_fd, SIOCGIFINDEX, &ifr);
 
 	memset(&addr, 0, sizeof(addr));
 	addr.can_family = AF_CAN;
 	addr.can_ifindex = ifr.ifr_ifindex;
 
-	if (bind(s, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+	if (bind(socket_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
 		perror("errBindCANAddr");
 		return errBindCANAddr;
 	}
 	return ret;
 }
-#endif
 
 /**
  * \brief function to initialize the OBDH subsystem
@@ -52,10 +51,7 @@ statusErrDef initCANSocket() {
  */
 statusErrDef initOBDH() {
 	statusErrDef ret = noError;
-#ifdef _WIN32
-#else
 	ret = initCANSocket();
-#endif
 	return ret;
 }
 

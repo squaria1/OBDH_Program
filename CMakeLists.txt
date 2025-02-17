@@ -10,6 +10,11 @@ SET(OBDH_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 SET(OBDH_SOURCES
     ${OBDH_SOURCE_DIR}/main.c
+    ${OBDH_SOURCE_DIR}/init.c
+    ${OBDH_SOURCE_DIR}/controlMode.c
+    ${OBDH_SOURCE_DIR}/regulate.c
+    ${OBDH_SOURCE_DIR}/restart.c
+    ${OBDH_SOURCE_DIR}/safeMode.c
     )
 
 INCLUDE_DIRECTORIES(

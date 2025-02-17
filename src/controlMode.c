@@ -21,7 +21,6 @@
  */
 statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 	statusErrDef ret = noError;
-	int s;
 	struct sockaddr_can addr;
 	struct ifreq ifr;
 	struct can_frame frame;
@@ -32,7 +31,7 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 	frame.can_dlc = 5;
 	sprintf(frame.data, "0x%04X", statusErr);
 
-	if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+	if (write(socket_fd, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
 		perror("errWriteCANTelem");
 		return errWriteCANTelem;
 	}

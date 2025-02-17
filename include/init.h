@@ -18,8 +18,6 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
-#ifdef _WIN32
-#else
 #include <unistd.h>
 
 #include <net/if.h>
@@ -28,13 +26,8 @@
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
-#endif
 
-#ifdef _WIN32
-#else
 statusErrDef initCANSocket();
-#endif
-
 statusErrDef initOBDH();
 statusErrDef initAOCS();
 statusErrDef initTTC();
@@ -42,5 +35,7 @@ statusErrDef initPayload();
 statusErrDef initIntersat();
 statusErrDef initEPS();
 statusErrDef initPPU();
+
+extern int socket_fd;
 
 #endif

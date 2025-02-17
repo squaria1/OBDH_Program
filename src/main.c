@@ -122,14 +122,11 @@ int main() {
             }
 
             printf("State has been changed to control mode\n");
-#ifdef _WIN32
-#else
             ret = sendTelemToTTC(infoStateToControlMode);
             if (ret == noError)
                 printf("sendTelemToTTC infoStateToControlMode OK\n");
             else
                 printf("Error sendTelemToTTC infoStateToControlMode!\n");
-#endif
             state = controlMode;
             break;
         case safeMode: // Enter safe mode procedure with telecommand or unable to regulate
@@ -138,16 +135,14 @@ int main() {
             ret = checkSensors();
             if (ret == noError)
                 printf("Sensor check OK\n");
-            else if (ret == errSensorOutOfBounds)
-#ifdef _WIN32
-#else
+            else if (ret == errSensorOutOfBounds) {
                 ret = sendTelemToTTC(infoStateToRegulate);
                 if (ret == noError)
                     printf("sendTelemToTTC infoStateToRegulate OK\n");
                 else
                     printf("Error sendTelemToTTC infoStateToRegulate!\n");
-#endif
                 state = regulate;
+            }
             else
                 printf("Error sensor check!\n");
             ret = checkTC();
@@ -155,6 +150,7 @@ int main() {
                 printf("check TC backlog OK\n");
             else
                 printf("Error check TC backlog!\n");
+            state = restart;
             break;
         case regulate: // Regulate subsystems when sensor out of bounds
             break;
