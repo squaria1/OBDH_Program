@@ -22,10 +22,13 @@ typedef enum
 	noError = 0x0000,						/**< No error has been detected, the function is working. */
 
 	/*=====INFORMATION AND SUCCESS=====*/
-	// CSV (from 0x0100 to 0x01FF)
-	infoInitCSV = 0x0101,					/**< The CSV module has successfully initialized. */
-	infoCSVChanged = 0x0102,				/**< The general state CSV has been changed. */
-	infoShutdownCSV = 0x01FF,				/**< The CSV module has successfully shutdown. */
+	// Init (from 0x0000 to 0x00FF)
+
+	// Safe mode (from 0x0100 to 0x01FF)
+
+	// Control mode (from 0x0200 to 0xE2FF)
+
+	// Restart (from 0x0F00 to 0x0FFF)
 
 	// Main state (from 0x7000 to 0x7FFF)
 	infoStateToInit = 0x7001,				/**< The main state has been changed to initialisation. */
@@ -45,6 +48,9 @@ typedef enum
 	errWriteCANTelem = 0xE201,				/**<  */
 	errReadCANTC = 0xE202,					/**<  */
 	errSensorOutOfBounds = 0xE203,			/**<  */
+
+	// Restart (from 0xEF00 to 0xEFFF)
+	errCloseCANSocket = 0xEF01				/**<  */
 
 } statusErrDef;
 

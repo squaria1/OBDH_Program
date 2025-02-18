@@ -11,6 +11,7 @@
 #ifndef CONTROLMODE_H
 #define CONTROLMODE_H
 
+#include "CCSDSLibrary/CCSDS.hh"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,8 +19,6 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
-#ifdef _WIN32
-#else
 #include <unistd.h>
 
 #include <net/if.h>
@@ -28,13 +27,10 @@
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
-#endif
 
-#ifdef _WIN32
-#else
+statusErrDef processCCSDSPacket();
 statusErrDef sendTelemToTTC(const statusErrDef statusErr);
 statusErrDef recieveTCFromTTC();
-#endif
 
 statusErrDef checkSensors();
 statusErrDef checkTC();

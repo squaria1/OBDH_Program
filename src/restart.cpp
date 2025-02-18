@@ -9,9 +9,14 @@
  *
  */
 #include "init.h"
+#include "restart.h"
 
 statusErrDef closeCANSocket() {
 	statusErrDef ret = noError;
+	if (close(socket_fd) < 0) {
+		perror("errCloseCANSocket");
+		return errCloseCANSocket;
+	}
 	return ret;
 }
 

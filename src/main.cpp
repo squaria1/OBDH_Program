@@ -155,6 +155,96 @@ int main() {
         case regulate: // Regulate subsystems when sensor out of bounds
             break;
         case restart: // Restart program with systemd
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freePPU();
+                if (ret == noError) {
+                    printf("free PPU OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free PPU!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freeEPS();
+                if (ret == noError) {
+                    printf("free EPS OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free EPS!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freeIntersat();
+                if (ret == noError) {
+                    printf("free Intersat OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free Intersat!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freePayload();
+                if (ret == noError) {
+                    printf("free Payload OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free Payload!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freeTTC();
+                if (ret == noError) {
+                    printf("free TT&C OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free TT&C!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freeAOCS();
+                if (ret == noError) {
+                    printf("free AOCS OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free AOCS!\n");
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freeOBDH();
+                if (ret == noError) {
+                    printf("free OBDH OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free OBDH!\n");
+                    retryCounter++;
+                }
+            }
             state = ending;
             break;
         default:
