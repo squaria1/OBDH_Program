@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <cstring>
 #include "configDefine.h"
 #include "statesDefine.h"
 
@@ -28,7 +29,8 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-statusErrDef processCCSDSPacket();
+std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDef busType);
+statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut);
 statusErrDef sendTelemToTTC(const statusErrDef statusErr);
 statusErrDef recieveTCFromTTC();
 

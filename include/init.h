@@ -23,11 +23,16 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <cstring>
+#include <cstdlib>
+#include <arpa/inet.h>
+#include <fcntl.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
 statusErrDef initCANSocket();
+statusErrDef initUDPSocket();
 statusErrDef initOBDH();
 statusErrDef initAOCS();
 statusErrDef initTTC();
@@ -37,5 +42,6 @@ statusErrDef initEPS();
 statusErrDef initPPU();
 
 extern int socket_fd;
+extern int socket_udp;
 
 #endif

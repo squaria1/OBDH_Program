@@ -20,6 +20,15 @@ statusErrDef closeCANSocket() {
 	return ret;
 }
 
+statusErrDef closeUDPSocket() {
+	statusErrDef ret = noError;
+	if (close(socket_udp) < 0) {
+		perror("errCloseUDPSocket");
+		return errCloseUDPSocket;
+	}
+	return ret;
+}
+
 /**
  * \brief function to free variables of the OBDH subsystem
  *
@@ -51,6 +60,7 @@ statusErrDef freeAOCS() {
  */
 statusErrDef freeTTC() {
 	statusErrDef ret = noError;
+	ret = closeUDPSocket();
 	return ret;
 }
 

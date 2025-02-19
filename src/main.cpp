@@ -132,6 +132,7 @@ int main() {
         case safeMode: // Enter safe mode procedure with telecommand or unable to regulate
             break;
         case controlMode: // Control subsystems (sensor acquisition, telemetry to/TC from TT&C)
+            /*
             ret = checkSensors();
             if (ret == noError)
                 printf("Sensor check OK\n");
@@ -145,12 +146,14 @@ int main() {
             }
             else
                 printf("Error sensor check!\n");
+            */
             ret = checkTC();
             if (ret == noError)
                 printf("check TC backlog OK\n");
             else
                 printf("Error check TC backlog!\n");
-            state = restart;
+            sleep(1);
+            //state = restart;
             break;
         case regulate: // Regulate subsystems when sensor out of bounds
             break;

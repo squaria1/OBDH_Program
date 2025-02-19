@@ -28,6 +28,7 @@
 #include <linux/can/raw.h>
 
 statusErrDef closeCANSocket();
+statusErrDef closeUDPSocket();
 statusErrDef freeOBDH();
 statusErrDef freeAOCS();
 statusErrDef freeTTC();

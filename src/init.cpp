@@ -11,14 +11,12 @@
 #include "init.h"
 
 int socket_fd = 0;
+int socket_udp = 0;
 
 statusErrDef initCANSocket() {
 	statusErrDef ret = noError;
-	int i;
-	int nbytes;
 	struct sockaddr_can addr;
 	struct ifreq ifr;
-	struct can_frame frame;
 
 	printf("CAN Sockets init\r\n");
 
@@ -27,7 +25,24 @@ statusErrDef initCANSocket() {
 		return errCreateCANSocket;
 	}
 
-	strcpy(ifr.ifr_name, "vcan0");
+	int buf_size = CAN_SOCKET_BUFFER_SIZE;
+	if(setsockopt(socket_fd, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
+		perror("errSetCANSocketBufSize");
+		return errSetCANSocketBufSize;
+	}
+
+	int flags = fcntl(socket_fd, F_GETFL, 0);
+	if(flags == -1) {
+		perror("errGetCANSocketFlags");
+		return errGetCANSocketFlags;
+	}
+    if(fcntl(socket_fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+		perror("errSetCANSocketNonBlocking");
+		return errSetCANSocketNonBlocking;
+	}
+
+
+	strcpy(ifr.ifr_name, CAN_INTERFACE);
 	ioctl(socket_fd, SIOCGIFINDEX, &ifr);
 
 	memset(&addr, 0, sizeof(addr));
@@ -38,6 +53,49 @@ statusErrDef initCANSocket() {
 		perror("errBindCANAddr");
 		return errBindCANAddr;
 	}
+	return ret;
+}
+
+statusErrDef initUDPSocket() {
+	statusErrDef ret = noError;
+    struct sockaddr_in serverAddr;
+
+    // Create UDP socket
+    socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
+    if (socket_udp < 0) {
+        perror("Socket creation failed");
+        return errCreateUDPSocket;
+    }
+
+	int buf_size = UDP_SOCKET_BUFFER_SIZE;
+	if(setsockopt(socket_udp, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
+		perror("errSetUDPSocketBufSize");
+		return errSetUDPSocketBufSize;
+	}
+
+	int flags = fcntl(socket_udp, F_GETFL, 0);
+	if(flags == -1) {
+		perror("errGetUDPSocketFlags");
+		return errGetUDPSocketFlags;
+	}
+    if(fcntl(socket_udp, F_SETFL, flags | O_NONBLOCK) == -1) {
+		perror("errSetUDPSocketNonBlocking");
+		return errSetUDPSocketNonBlocking;
+	}
+
+    // Bind to UDP port
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(UDP_TELECOMMAND_PORT);
+
+    if (bind(socket_udp, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        perror("Bind failed");
+        return errBindUDPAddr;
+    }
+
+
+    printf("Listening for cFS packets on UDP port %d ...\n", UDP_TELECOMMAND_PORT);
 	return ret;
 }
 
@@ -74,6 +132,7 @@ statusErrDef initAOCS() {
  */
 statusErrDef initTTC() {
 	statusErrDef ret = noError;
+	ret = initUDPSocket();
 	return ret;
 }
 

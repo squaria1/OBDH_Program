@@ -40,17 +40,29 @@ typedef enum
 	/*=============ERROR===============*/
 	// Init (from 0xE000 to 0xE0FF)
 	errCreateCANSocket = 0xE001,			/**<  */
-	errBindCANAddr = 0xE002,				/**<  */
+	errSetCANSocketBufSize = 0xE002,		/**<  */
+	errGetCANSocketFlags = 0xE003,			/**<  */
+	errSetCANSocketNonBlocking = 0xE004,	/**<  */
+	errBindCANAddr = 0xE005,				/**<  */
+	errCreateUDPSocket = 0xE006,			/**<  */
+	errSetUDPSocketBufSize = 0xE007,		/**<  */
+	errGetUDPSocketFlags = 0xE008,			/**<  */
+	errSetUDPSocketNonBlocking = 0xE009,	/**<  */
+	errBindUDPAddr = 0xE00A,				/**<  */
 
 	// Safe mode (from 0xE100 to 0xE1FF)
 
 	// Control mode (from 0xE200 to 0xE2FF)
 	errWriteCANTelem = 0xE201,				/**<  */
-	errReadCANTC = 0xE202,					/**<  */
+	errReadCANPayload = 0xE202,				/**<  */
+	errWriteCANPayload = 0xE202,			/**<  */
 	errSensorOutOfBounds = 0xE203,			/**<  */
+	errCCSDSPacketTooLarge = 0xE204,		/**<  */
+	errWriteUDPTelem = 0xE205,				/**<  */
 
 	// Restart (from 0xEF00 to 0xEFFF)
-	errCloseCANSocket = 0xEF01				/**<  */
+	errCloseCANSocket = 0xEF01,				/**<  */
+	errCloseUDPSocket = 0xEF02,				/**<  */
 
 } statusErrDef;
 
@@ -60,14 +72,22 @@ typedef enum
  */
 typedef enum
 {
-	init, 								/**< Initialize all modules with status and error telemetry. */
-	safeMode, 							/**< Activate valves and read sensors values. */
+	init, 									/**< Initialize all modules with status and error telemetry. */
+	safeMode, 								/**< Activate valves and read sensors values. */
 	controlMode,
 	regulate,
-	restart, 							/**< Shutdown all modules with status and error telemetry. */
-	ending, 							/**< Stop the program. */
+	restart, 								/**< Shutdown all modules with status and error telemetry. */
+	ending, 								/**< Stop the program. */
 } stateDef;
 
-
+/**
+ * \enum busTypeDef
+ * \brief list of connection type
+ */
+typedef enum
+{
+	CANType, 									/**< */
+	UDPType, 									/**< */
+} busTypeDef;
 
 #endif
