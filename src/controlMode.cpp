@@ -11,6 +11,9 @@
 #include "controlMode.h"
 #include "init.h"
 
+uint8_t counter = 0;
+uint16_t mainStateTC = 0xFFFF;
+
 int toInteger(std::string str) {
 	using namespace std;
 	stringstream ss;
@@ -31,10 +34,10 @@ int toInteger(std::string str) {
  */
 std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDef busType) {
 	using namespace std;
-	uint16_t apid = 0x80b;
-	uint8_t category = 0;
-	uint8_t aduCount = 0;
-	size_t sequenceCount = 0;
+	uint16_t apid = 0x1AB;
+	//uint8_t category = 0;
+	//uint8_t aduCount = 0;
+	size_t sequenceCount = 1;
 
 	//constructs an empty instance
 	CCSDSSpacePacket* ccsdsPacketIN = new CCSDSSpacePacket();
@@ -43,30 +46,31 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDe
 	//set Packet Type (Telemetry or Command)
 	ccsdsPacketIN->getPrimaryHeader()->setPacketType(CCSDSSpacePacketPacketType::TelemetryPacket);
 	//set Secondary Header Flag (whether this packet has the Secondary Header part)
-	ccsdsPacketIN->getPrimaryHeader()->setSecondaryHeaderFlag(CCSDSSpacePacketSecondaryHeaderFlag::Present);
+	ccsdsPacketIN->getPrimaryHeader()->setSecondaryHeaderFlag(CCSDSSpacePacketSecondaryHeaderFlag::NotPresent);
 	//set segmentation information
 	ccsdsPacketIN->getPrimaryHeader()->setSequenceFlag(CCSDSSpacePacketSequenceFlag::UnsegmentedUserData);
 	//set Category
-	ccsdsPacketIN->getSecondaryHeader()->setCategory(category);
+	//ccsdsPacketIN->getSecondaryHeader()->setCategory(category);
 	//set secondary header type (whether ADU Channel presence)
-	ccsdsPacketIN->getSecondaryHeader()->
-	setSecondaryHeaderType(CCSDSSpacePacketSecondaryHeaderType::ADUChannelIsUsed);
+	//ccsdsPacketIN->getSecondaryHeader()->
+	//setSecondaryHeaderType(CCSDSSpacePacketSecondaryHeaderType::ADUChannelIsUsed);
 	//set ADU Channel ID
-	ccsdsPacketIN->getSecondaryHeader()->setADUChannelID(0x00);
+	//ccsdsPacketIN->getSecondaryHeader()->setADUChannelID(0x00);
 	//set ADU Segmentation Flag (whether ADU is segmented)
-	ccsdsPacketIN->getSecondaryHeader()->setADUSegmentFlag(CCSDSSpacePacketADUSegmentFlag::UnsegmentedADU);
+	//ccsdsPacketIN->getSecondaryHeader()->setADUSegmentFlag(CCSDSSpacePacketADUSegmentFlag::UnsegmentedADU);
 	//set counters
 	ccsdsPacketIN->getPrimaryHeader()->setSequenceCount(sequenceCount);
-	ccsdsPacketIN->getSecondaryHeader()->setADUCount(aduCount);
+	//ccsdsPacketIN->getSecondaryHeader()->setADUCount(aduCount);
 	//set absolute time
-	uint8_t time[4];
-	ccsdsPacketIN->getSecondaryHeader()->setTime(time);
+	//uint8_t time[4];
+	//ccsdsPacketIN->getSecondaryHeader()->setTime(time);
 	//set data
 	ccsdsPacketIN->setUserDataField(dataOut);
 	ccsdsPacketIN->setPacketDataLength();
 	//get packet as byte array
 	std::vector<uint8_t> packet = ccsdsPacketIN->getAsByteVector();
 
+	/*
 	printf("\n\n\n==================================================\n\n\n");
 
 	//constructs an empty instance
@@ -82,6 +86,7 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDe
 	std::cout << ccsdsPacket->getPrimaryHeader()->getAPIDAsInteger() << std::endl;
 	//dump packet content
 	std::cout << ccsdsPacket->toString() << std::endl;
+	*/
 
 	return packet;
 }
@@ -90,10 +95,12 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDe
 statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 	statusErrDef ret = noError;
 	busTypeDef busType = UDPType;
-	uint8_t highByte = (statusErr >> 8) & 0xFF;  // Get the higher byte (8 most significant bits)
-    uint8_t lowByte = statusErr & 0xFF; // Get the lower byte (8 least significant bits)
+	std::vector<uint8_t> telemOut;
+	uint8_t categoryHighByte = (statusErr >> 8) & 0xFF;  // Get the higher byte (8 most significant bits)
+    uint8_t categoryLowByte = statusErr & 0xFF; // Get the lower byte (8 least significant bits)
 
-	std::vector<uint8_t> telemOut = {highByte,lowByte};
+    telemOut = {categoryHighByte,categoryLowByte};
+
 	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut, busType);
 
 	// Setup the destination address (this is where the packet will be sent)
@@ -111,9 +118,63 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
         return errWriteUDPTelem;  // Error in sending packet
     }
 
-    std::cout << "Sent " << bytes_sent << " bytes over UDP\n";
+    //std::cout << "Sent " << bytes_sent << " bytes over UDP\n";
 
 	return ret;
+}
+
+statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue) {
+	statusErrDef ret = noError;
+	busTypeDef busType = UDPType;
+	std::vector<uint8_t> telemOut;
+	uint8_t categoryHighByte = (sensor >> 8) & 0xFF;  // Get the higher byte (8 most significant bits)
+    uint8_t categoryLowByte = sensor & 0xFF; // Get the lower byte (8 least significant bits)
+
+	telemOut = {categoryHighByte,categoryLowByte};
+	for(int i = 0; i < sensorValue.size(); i++) {
+		telemOut.push_back(sensorValue[i]);
+	}
+
+	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut, busType);
+
+	// Setup the destination address (this is where the packet will be sent)
+    struct sockaddr_in clientAddr;
+    memset(&clientAddr, 0, sizeof(clientAddr));
+    clientAddr.sin_family = AF_INET;
+    clientAddr.sin_port = htons(UDP_TELEMETRY_PORT);  // Destination port
+    clientAddr.sin_addr.s_addr = inet_addr(TTC_IP_ADDRESS);  // Destination IP address (localhost, change to actual IP)
+
+    // Send the CCSDS packet over UDP
+    ssize_t bytes_sent = sendto(socket_udp, ccsdsPacket.data(), ccsdsPacket.size(),
+                                 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+    if (bytes_sent < 0) {
+        perror("errWriteUDPTelem");
+        return errWriteUDPTelem;  // Error in sending packet
+    }
+
+    //std::cout << "Sent " << bytes_sent << " bytes over UDP\n";
+
+	return ret;
+}
+
+void DumpUDPData(uint8_t *data, ssize_t length) {
+    printf("Received %zd bytes of data:\n", length);
+
+    // Iterate over each byte in the received data
+    for (ssize_t i = 0; i < length; i++) {
+        // Print each byte in hexadecimal format
+        printf("0x%02X ", data[i]);
+
+        // Optionally, print a newline every 16 bytes for better readability
+        if ((i + 1) % 16 == 0) {
+            printf("\n");
+        }
+    }
+
+    // Print a final newline if the data doesn't end on a boundary of 16 bytes
+    if (length % 16 != 0) {
+        printf("\n");
+    }
 }
 
 /**
@@ -132,14 +193,29 @@ statusErrDef recieveTCFromTTC() {
 	ssize_t sizeReceived = recvfrom(socket_udp, buffer, UDP_MAX_BUFFER_SIZE, 0,(struct sockaddr*)&clientAddr,&addrLen);
 	if (sizeReceived > 0) {
 		std::cout << "Received " << sizeReceived << " bytes from cFS\n";
+		DumpUDPData(buffer, sizeReceived);
 		//constructs an empty instance
 		CCSDSSpacePacket* ccsdsPacket = new CCSDSSpacePacket();
 		//interpret an input data as a CCSDS SpacePacket
-		ccsdsPacket->interpret(buffer,sizeReceived);
-		//check if the packet has Secondary Header
-		if(ccsdsPacket->isSecondaryHeaderPresent()){
-			printf("HAS A SECONDARY HEADER\n");
+		try {
+			// Attempt to interpret the packet
+			ccsdsPacket->interpret(buffer, sizeReceived);
+		} catch (CCSDSSpacePacketException &e) {
+			// Print the exception details to help debug
+			std::cerr << "CCSDS Packet Error: " << e.toString() << std::endl;
+			std::cerr << "Failed to interpret packet of length " << sizeReceived << std::endl;
+			// Optionally, dump the buffer contents for inspection
+			for (size_t i = 0; i < sizeReceived; i++) {
+				std::cout << std::hex << (int)buffer[i] << " ";
+			}
+			std::cout << std::endl;
 		}
+
+		std::vector<uint8_t> *userData = ccsdsPacket->getUserDataField();
+		mainStateTC = ((*userData)[0] << 8) | (*userData)[1];
+
+
+
 		//get APID
 		std::cout << ccsdsPacket->getPrimaryHeader()->getAPIDAsInteger() << std::endl;
 		//dump packet content
@@ -214,7 +290,13 @@ statusErrDef checkSensors() {
 }
 
 statusErrDef checkTC() {
+	counter++;
 	statusErrDef ret = noError;
 	ret = recieveTCFromTTC();
+	ret = sendTelemToTTC(infoStateToControlMode);
+	ret = sendTelemToTTC(errBindCANAddr);
+	ret = sendSensorDataToTTC(sensor1, {counter});
+	ret = sendSensorDataToTTC(sensor2, {0xF1, counter});
+	ret = sendSensorDataToTTC(sensor3, {0xF1, 0xF2, 0xF3, counter});
 	return ret;
 }

@@ -26,6 +26,7 @@ int main() {
     stateDef        state = init;
     statusErrDef    ret = noError;
     int             retryCounter = 0;
+    uint16_t        mainStateTCTemp = 0xFFFF;
 
     while (state != ending) {
         switch (state) {
@@ -156,6 +157,8 @@ int main() {
             //state = restart;
             break;
         case regulate: // Regulate subsystems when sensor out of bounds
+            printf("\n\n\nREGULATE STATE\n\n\n");
+            state = controlMode;
             break;
         case restart: // Restart program with systemd
             retryCounter = 0;
@@ -252,6 +255,10 @@ int main() {
             break;
         default:
             break;
+        }
+        if(mainStateTC != 0xFFFF && mainStateTC != mainStateTCTemp) {
+            state = static_cast<stateDef>(mainStateTC);
+            mainStateTCTemp = mainStateTC;
         }
     }
 
