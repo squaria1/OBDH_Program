@@ -232,7 +232,7 @@ statusErrDef recieveTelemFromPayload() {
 	statusErrDef ret = noError;
 	struct canfd_frame frame;
 
-    if (read(socket_fd, &frame, sizeof(struct canfd_frame)) < 0) {
+    if (read(socket_can, &frame, sizeof(struct canfd_frame)) < 0) {
         perror("errReadCANPayload");
         return errReadCANPayload;
     }
@@ -248,10 +248,37 @@ statusErrDef recieveTelemFromPayload() {
 }
 
 /**
- * \brief function to send telecommands to the Payload subsystem
+ * \brief function to recieve telemetry from the EPS subsystem
  *
  * \return statusErrDef that values:
- * - errWriteCANPayload when CAN frame can't be written,
+ * - errReadCANPayload when CAN frame can't be read,
+ * - noError when the function exits successfully.
+ */
+statusErrDef recieveTelemFromEPS() {
+	statusErrDef ret = noError;
+	struct canfd_frame frame;
+
+    if (read(socket_can, &frame, sizeof(struct canfd_frame)) < 0) {
+        perror("errReadCANEPS");
+        return errReadCANEPS;
+    }
+
+    std::cout << "Received CCSDS packet (" << static_cast<int>(frame.len) << " bytes)\n";
+    std::cout << "Data: ";
+    for (size_t i = 0; i < frame.len; i++) {
+        printf("%02X ", frame.data[i]);
+    }
+    std::cout << std::endl;
+
+	return ret;
+}
+
+/**
+ * \brief function to send telecommands to the Payload subsystem.
+ *
+ * \return statusErrDef that values:
+ * - errCCSDSPacketTooLarge when the CCSDS packet is too large for the CAN FD frame (64 Bytes),
+ * - errWriteCANPayload when write payload subsystem TCs to the CAN bus fails,
  * - noError when the function exits successfully.
  */
 statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut) {
@@ -268,7 +295,7 @@ statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut) {
 
     std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());  // Copy CCSDS packet into frame
 
-    if (write(socket_fd, &frame, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
+    if (write(socket_can, &frame, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
         perror("CAN FD send error");
 		return errWriteCANPayload;
     }
@@ -286,9 +313,13 @@ statusErrDef compareSensorValuesWithParam() {
 			paramSensors->currentValue[i] >= paramSensors->maxWarnValue[i]) {
 				if(paramSensors->currentValue[i] <= paramSensors->minCriticalValue[i] ||
 				paramSensors->currentValue[i] >= paramSensors->maxCriticalValue[i]) {
-					//sendTelemToTTC();
+					sendTelemToTTC(errSensorCriticalValue);
+					return errSensorCriticalValue;
 				}
-				//sendTelemToTTC();
+				else {
+					sendTelemToTTC(errSensorWarningValue);
+					return errSensorWarningValue;
+				}
 			}
 	}
 
@@ -300,6 +331,9 @@ statusErrDef checkSensors() {
 	ret = recieveTelemFromPayload();
 	if(ret != noError)
 		return ret;
+	ret = recieveTelemFromEPS();
+	if(ret != noError)
+		return ret;
 	ret = compareSensorValuesWithParam();
 	return ret;
 }
@@ -308,12 +342,6 @@ statusErrDef checkTC() {
 	counter++;
 	statusErrDef ret = noError;
 	ret = recieveTCFromTTC();
-	if(ret != noError)
-		return ret;
-	ret = sendTelemToTTC(infoStateToControlMode);
-	if(ret != noError)
-		return ret;
-	ret = sendTelemToTTC(errBindCANAddr);
 	if(ret != noError)
 		return ret;
 	ret = sendSensorDataToTTC(sensor1, {counter});

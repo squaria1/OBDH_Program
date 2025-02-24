@@ -13,7 +13,7 @@
 
 statusErrDef closeCANSocket() {
 	statusErrDef ret = noError;
-	if (close(socket_fd) < 0) {
+	if (close(socket_can) < 0) {
 		perror("errCloseCANSocket");
 		return errCloseCANSocket;
 	}

@@ -51,16 +51,20 @@ statusErrDef initPPU();
  *
  */
 struct paramSensorsStruct {
-    uint16_t id[MAX_SENSORS];                   /**< In the form of 0x1902 Where 1 is the payload subsystem and 2 is the third sensor of the subsystem */
+    uint16_t id[MAX_SENSORS];                   /**< In the form like 0x1902 Where 1 is the payload subsystem and 2 is the third sensor of the subsystem */
     int32_t minCriticalValue[MAX_SENSORS];      /**< Minimum critical value of the sensor */
     int32_t minWarnValue[MAX_SENSORS];          /**< Minimum warning value of the sensor */
-    int32_t currentValue[MAX_SENSORS];           /**< Current value of the sensor */
+    int32_t currentValue[MAX_SENSORS];          /**< Current value of the sensor */
     int32_t maxWarnValue[MAX_SENSORS];          /**< Maximum warning value of the sensor */
     int32_t maxCriticalValue[MAX_SENSORS];      /**< Maximum critical value of the sensor */
 };
 
+
+//------------------------------------------------------------------------------
+// global vars
+//------------------------------------------------------------------------------
 extern int lineCountSensorParamCSV;
-extern int socket_fd;
+extern int socket_can;
 extern int socket_udp;
 extern struct paramSensorsStruct* paramSensors;
 

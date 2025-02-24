@@ -37,15 +37,10 @@ statusErrDef recieveTCFromTTC();
 statusErrDef checkSensors();
 statusErrDef checkTC();
 
-extern uint16_t mainStateTC;
 
-/**
- * \struct TCBacklog
- * \brief struct containing the history of TCs
- *
- */
-struct TCBacklog {
-    int receivedDate;                              /**< the set value of a valve */
-};
+//------------------------------------------------------------------------------
+// global vars
+//------------------------------------------------------------------------------
+extern uint16_t mainStateTC;
 
 #endif

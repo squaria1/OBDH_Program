@@ -17,7 +17,6 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
-statusErrDef stopPayload();
 statusErrDef broadcastSafeMode();
 
 #endif

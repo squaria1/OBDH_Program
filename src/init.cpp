@@ -18,8 +18,19 @@
  */
 struct paramSensorsStruct* paramSensors;
 
-int socket_fd = 0;
+/**
+ * \brief the CAN socket global variable.
+ */
+int socket_can = 0;
+
+/**
+ * \brief the UDP socket global variable.
+ */
 int socket_udp = 0;
+
+/**
+ * \brief paramSensors.csv file line count.
+ */
 int lineCountSensorParamCSV = 0;
 
 /**
@@ -27,12 +38,16 @@ int lineCountSensorParamCSV = 0;
  * until the end of the file.
  *
  * \return statusErrDef that values:
+ * - errOpenParamSensorsFile when the paramSensors.csv file fails to open
  * - errAllocParamSensorStruct when the sensorParam structure cannot be allocated to the memory
  * - noError when the function exits successfully.
  */
 statusErrDef initSensorParamCSV() {
 	statusErrDef ret = noError;
 	lineCountSensorParamCSV = countFileLines(PARAM_SENSORS_CSV_FILEPATH);
+    if(lineCountSensorParamCSV == -1) {
+		return errOpenParamSensorsFile;
+    }
 
 	paramSensors = (struct paramSensorsStruct*)malloc(sizeof(struct paramSensorsStruct));
 	if (paramSensors == NULL)
@@ -48,7 +63,12 @@ statusErrDef initSensorParamCSV() {
 	return ret;
 }
 
-
+/**
+ * \brief function to count the number of lines
+ * in the paraSensors.csv file.
+ *
+ * \return the line count.
+ */
 int countFileLines(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -75,7 +95,7 @@ int countFileLines(const char *filename) {
  *
  * \param fileName location and name of the CSV file to read
  * \return statusErrDef that values:
- * - errOpenParamSensorsFile when the file fails to open
+ * - errOpenParamSensorsFile when the paramSensors.csv file fails to open
  * - noError when the function exits successfully.
  */
 statusErrDef readParamSensorsFile(const char* fileName) {
@@ -154,36 +174,36 @@ statusErrDef initCANSocket() {
 
 	printf("CAN Sockets init\r\n");
 
-	if ((socket_fd = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+	if ((socket_can = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
 		perror("errCreateCANSocket");
 		return errCreateCANSocket;
 	}
 
 	int buf_size = CAN_SOCKET_BUFFER_SIZE;
-	if(setsockopt(socket_fd, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
+	if(setsockopt(socket_can, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
 		perror("errSetCANSocketBufSize");
 		return errSetCANSocketBufSize;
 	}
 
-	int flags = fcntl(socket_fd, F_GETFL, 0);
+	int flags = fcntl(socket_can, F_GETFL, 0);
 	if(flags == -1) {
 		perror("errGetCANSocketFlags");
 		return errGetCANSocketFlags;
 	}
-    if(fcntl(socket_fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+    if(fcntl(socket_can, F_SETFL, flags | O_NONBLOCK) == -1) {
 		perror("errSetCANSocketNonBlocking");
 		return errSetCANSocketNonBlocking;
 	}
 
 
 	strcpy(ifr.ifr_name, CAN_INTERFACE);
-	ioctl(socket_fd, SIOCGIFINDEX, &ifr);
+	ioctl(socket_can, SIOCGIFINDEX, &ifr);
 
 	memset(&addr, 0, sizeof(addr));
 	addr.can_family = AF_CAN;
 	addr.can_ifindex = ifr.ifr_ifindex;
 
-	if (bind(socket_fd, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+	if (bind(socket_can, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
 		perror("errBindCANAddr");
 		return errBindCANAddr;
 	}

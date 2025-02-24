@@ -31,6 +31,7 @@ int main() {
     while (state != ending) {
         switch (state) {
         case init: // OBDH and subsystem connection initialisation
+            // Retry to initialize NB_RETRIES times with ERROR_RETRY_TIME delay between each retries
             retryCounter = 0;
             while (retryCounter < NB_RETRIES) {
                 ret = initTTC();
@@ -64,22 +65,6 @@ int main() {
 
             retryCounter = 0;
             while (retryCounter < NB_RETRIES) {
-                ret = initAOCS();
-                if (ret == noError) {
-                    printf("init AOCS OK\n");
-                    sendTelemToTTC(infoInitAOCSSuccess);
-                    retryCounter = NB_RETRIES;
-                }
-                else {
-                    printf("Error init AOCS! 0x%04X \n", ret);
-                    sendTelemToTTC(ret);
-                    sleep(ERROR_RETRY_TIME);
-                    retryCounter++;
-                }
-            }
-
-            retryCounter = 0;
-            while (retryCounter < NB_RETRIES) {
                 ret = initEPS();
                 if (ret == noError) {
                     printf("init EPS OK\n");
@@ -88,6 +73,22 @@ int main() {
                 }
                 else {
                     printf("Error init EPS! 0x%04X \n", ret);
+                    sendTelemToTTC(ret);
+                    sleep(ERROR_RETRY_TIME);
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = initAOCS();
+                if (ret == noError) {
+                    printf("init AOCS OK\n");
+                    sendTelemToTTC(infoInitAOCSSuccess);
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init AOCS! 0x%04X \n", ret);
                     sendTelemToTTC(ret);
                     sleep(ERROR_RETRY_TIME);
                     retryCounter++;
@@ -147,43 +148,59 @@ int main() {
             state = controlMode;
             break;
         case safeMode: // Enter safe mode procedure with telecommand or unable to regulate
-            ret = stopPayload();
-            if (ret == noError)
+            // send stop order to the payload subsystem
+            ret = sendTCToPayload({0x17,0xFF});
+            if (ret == noError) {
                 printf("Send stop to payload OK\n");
-            else
+                sendTelemToTTC(infoSendStopPayloadSuccess);
+            }
+            else {
                 printf("Error send stop to payload! Ox%04X \n", ret);
-            break;
+                sendTelemToTTC(ret);
+            }
+
             ret = broadcastSafeMode();
-            if (ret == noError)
+            if (ret == noError) {
                 printf("Send safe mode to all subsystems OK\n");
-            else
+                sendTelemToTTC(infoBroadcastSafeModeSuccess);
+            }
+            else {
                 printf("Error send safe mode to all subsystems! 0x%04X \n", ret);
+                sendTelemToTTC(ret);
+            }
+
+            state = controlMode;
             break;
         case controlMode: // Control subsystems (sensor acquisition, telemetry to/TC from TT&C)
-            /*
             ret = checkSensors();
             if (ret == noError)
                 printf("Sensor check OK\n");
-            else if (ret == errSensorOutOfBounds) {
-                ret = sendTelemToTTC(infoStateToRegulate);
-                if (ret == noError)
-                    printf("sendTelemToTTC infoStateToRegulate OK\n");
-                else
-                    printf("Error sendTelemToTTC infoStateToRegulate! 0x%04X \n", ret);
+            else if (ret == errSensorWarningValue) {
+                printf("State has been changed to regulate state! 0x%04X \n", ret);
+                sendTelemToTTC(infoStateToRegulate);
                 state = regulate;
             }
-            else
-                printf("Error sensor check!\n");
-            */
+            else if (ret == errSensorCriticalValue) {
+                printf("State has been changed to safe mode! 0x%04X \n", ret);
+                sendTelemToTTC(infoStateToSafeMode);
+                state = safeMode;
+            }
+            else {
+                printf("Error sensor check! 0x%04X \n", ret);
+                sendTelemToTTC(ret);
+            }
+
             ret = checkTC();
             if (ret == noError)
                 printf("check TC backlog OK\n");
-            else
+            else {
                 printf("Error check TC backlog! 0x%04X \n", ret);
+                sendTelemToTTC(ret);
+            }
+
             sleep(MAIN_LOOP_TIME);
             break;
         case regulate: // Regulate subsystems when sensor out of bounds
-            sendTelemToTTC(infoStateToRegulate);
             printf("\n\n\nREGULATE STATE\n\n\n");
             state = controlMode;
             break;
