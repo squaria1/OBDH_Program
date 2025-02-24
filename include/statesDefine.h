@@ -12,6 +12,10 @@
 #ifndef STATESDEFINE_H
 #define STATESDEFINE_H
 
+
+#include <unordered_set>
+#include <stdint.h>
+
  /**
   * \enum statusErrDef
   * \brief the program status and error codes
@@ -23,12 +27,26 @@ typedef enum
 
 	/*=====INFORMATION AND SUCCESS=====*/
 	// Init (from 0x0000 to 0x001F)
+	infoInitTTCSuccess = 0x0000,
+	infoInitOBDHSuccess = 0x0001,
+	infoInitAOCSSuccess = 0x0002,
+	infoInitEPSSuccess = 0x0003,
+	infoInitPayloadSuccess = 0x0004,
+	infoInitIntersatSuccess = 0x0005,
+	infoInitPPUSuccess = 0x0006,
 
 	// Safe mode (from 0x0020 to 0x003F)
 
 	// Control mode (from 0x0040 to 0x005F)
 
 	// Restart (from 0x00E0 to 0x00FF)
+	infoFreePPUSuccess = 0x00E0,
+	infoFreeIntersatSuccess = 0x00E1,
+	infoFreePayloadSuccess = 0x00E2,
+	infoFreeAOCSSuccess = 0x00E3,
+	infoFreeEPSSuccess = 0x00E4,
+	infoFreeOBDHSuccess = 0x00E5,
+	infoFreeTTCSuccess = 0x00E6,
 
 	// Main state (from 0x0700 to 0x07FF)
 	infoStateToInit = 0x0700,				/**< The main state has been changed to initialisation. */
@@ -49,6 +67,8 @@ typedef enum
 	errGetUDPSocketFlags = 0x0E08,			/**<  */
 	errSetUDPSocketNonBlocking = 0x0E09,	/**<  */
 	errBindUDPAddr = 0x0E0A,				/**<  */
+	errAllocParamSensorStruct = 0x0E0B,		/**<  */
+	errOpenParamSensorsFile = 0x0E0C,		/**<  */
 
 	// Safe mode (from 0x0E20 to 0x0E3F)
 
@@ -80,15 +100,9 @@ typedef enum
 	ending = 0x0FFF, 								/**< Stop the program. */
 } stateDef;
 
-/**
- * \enum busTypeDef
- * \brief list of connection type
- */
-typedef enum
-{
-	CANType, 									/**< */
-	UDPType, 									/**< */
-} busTypeDef;
+const std::unordered_set<uint16_t> validStates = {
+    init, safeMode, controlMode, regulate, restart, ending
+};
 
 /**
  * \enum sensorDef

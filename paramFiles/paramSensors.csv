@@ -1,0 +1,2 @@
+Name;Id;minCriticalValue;minWarnValue;currentValue;maxWarnValue;maxCriticalValue
+test;0x0702;2;5;#;50;55

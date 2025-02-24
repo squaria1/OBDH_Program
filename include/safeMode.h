@@ -14,8 +14,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "configDefine.h"
 #include "statesDefine.h"
+
+statusErrDef stopPayload();
+statusErrDef broadcastSafeMode();
 
 #endif

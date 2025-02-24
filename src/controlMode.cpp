@@ -1,5 +1,5 @@
 /**
- * \file controlMode.c
+ * \file controlMode.cpp
  * \brief control mode functions
  * \author Mael Parot
  * \version 1.0
@@ -32,8 +32,7 @@ int toInteger(std::string str) {
  *
  * \return a CCSDS packet to be sent
  */
-std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDef busType) {
-	using namespace std;
+std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
 	uint16_t apid = 0x1AB;
 	//uint8_t category = 0;
 	//uint8_t aduCount = 0;
@@ -94,14 +93,13 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDe
 
 statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 	statusErrDef ret = noError;
-	busTypeDef busType = UDPType;
 	std::vector<uint8_t> telemOut;
 	uint8_t categoryHighByte = (statusErr >> 8) & 0xFF;  // Get the higher byte (8 most significant bits)
     uint8_t categoryLowByte = statusErr & 0xFF; // Get the lower byte (8 least significant bits)
 
     telemOut = {categoryHighByte,categoryLowByte};
 
-	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut, busType);
+	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut);
 
 	// Setup the destination address (this is where the packet will be sent)
     struct sockaddr_in clientAddr;
@@ -125,7 +123,6 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 
 statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue) {
 	statusErrDef ret = noError;
-	busTypeDef busType = UDPType;
 	std::vector<uint8_t> telemOut;
 	uint8_t categoryHighByte = (sensor >> 8) & 0xFF;  // Get the higher byte (8 most significant bits)
     uint8_t categoryLowByte = sensor & 0xFF; // Get the lower byte (8 least significant bits)
@@ -135,7 +132,7 @@ statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> se
 		telemOut.push_back(sensorValue[i]);
 	}
 
-	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut, busType);
+	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut);
 
 	// Setup the destination address (this is where the packet will be sent)
     struct sockaddr_in clientAddr;
@@ -259,8 +256,7 @@ statusErrDef recieveTelemFromPayload() {
  */
 statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut) {
 	statusErrDef ret = noError;
-	busTypeDef busType = CANType;
-	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(TCOut, busType);
+	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(TCOut);
 	if (ccsdsPacket.size() > DATA_OUT_CAN_MAX_LENGTH) {
         std::cerr << "Error: CCSDS packet too large for single CAN FD frame\n";
         return errCCSDSPacketTooLarge;
@@ -283,9 +279,28 @@ statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut) {
 	return ret;
 }
 
+statusErrDef compareSensorValuesWithParam() {
+	statusErrDef ret = noError;
+	for(int i = 1; i < lineCountSensorParamCSV; i++) {
+		if(paramSensors->currentValue[i] <= paramSensors->minWarnValue[i] ||
+			paramSensors->currentValue[i] >= paramSensors->maxWarnValue[i]) {
+				if(paramSensors->currentValue[i] <= paramSensors->minCriticalValue[i] ||
+				paramSensors->currentValue[i] >= paramSensors->maxCriticalValue[i]) {
+					//sendTelemToTTC();
+				}
+				//sendTelemToTTC();
+			}
+	}
+
+	return ret;
+}
+
 statusErrDef checkSensors() {
 	statusErrDef ret = noError;
 	ret = recieveTelemFromPayload();
+	if(ret != noError)
+		return ret;
+	ret = compareSensorValuesWithParam();
 	return ret;
 }
 
@@ -293,10 +308,20 @@ statusErrDef checkTC() {
 	counter++;
 	statusErrDef ret = noError;
 	ret = recieveTCFromTTC();
+	if(ret != noError)
+		return ret;
 	ret = sendTelemToTTC(infoStateToControlMode);
+	if(ret != noError)
+		return ret;
 	ret = sendTelemToTTC(errBindCANAddr);
+	if(ret != noError)
+		return ret;
 	ret = sendSensorDataToTTC(sensor1, {counter});
+	if(ret != noError)
+		return ret;
 	ret = sendSensorDataToTTC(sensor2, {0xF1, counter});
+	if(ret != noError)
+		return ret;
 	ret = sendSensorDataToTTC(sensor3, {0xF1, 0xF2, 0xF3, counter});
 	return ret;
 }

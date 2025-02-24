@@ -1,5 +1,5 @@
 /**
- * \file init.c
+ * \file restart.cpp
  * \brief Subsystem initialisation functions
  * \author Mael Parot
  * \version 1.0
@@ -38,6 +38,7 @@ statusErrDef closeUDPSocket() {
 statusErrDef freeOBDH() {
 	statusErrDef ret = noError;
 	ret = closeCANSocket();
+	free(paramSensors);
 	return ret;
 }
 

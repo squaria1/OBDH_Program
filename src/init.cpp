@@ -1,5 +1,5 @@
 /**
- * \file init.c
+ * \file init.cpp
  * \brief Subsystem initialisation functions
  * \author Mael Parot
  * \version 1.0
@@ -10,9 +10,143 @@
  */
 #include "init.h"
 
+/**
+ * \struct paramSensors
+ * \brief struct containing the parameters of each sensors
+ * on the spacecraft
+ *
+ */
+struct paramSensorsStruct* paramSensors;
+
 int socket_fd = 0;
 int socket_udp = 0;
+int lineCountSensorParamCSV = 0;
 
+/**
+ * \brief function to read "paramSensors.csv"
+ * until the end of the file.
+ *
+ * \return statusErrDef that values:
+ * - errAllocParamSensorStruct when the sensorParam structure cannot be allocated to the memory
+ * - noError when the function exits successfully.
+ */
+statusErrDef initSensorParamCSV() {
+	statusErrDef ret = noError;
+	lineCountSensorParamCSV = countFileLines(PARAM_SENSORS_CSV_FILEPATH);
+
+	paramSensors = (struct paramSensorsStruct*)malloc(sizeof(struct paramSensorsStruct));
+	if (paramSensors == NULL)
+	{
+		perror("Error allocating memory");
+		return errAllocParamSensorStruct;
+	}
+
+	memset(paramSensors, 0, sizeof(struct paramSensorsStruct));
+
+	ret = readParamSensorsFile(PARAM_SENSORS_CSV_FILEPATH);
+
+	return ret;
+}
+
+
+int countFileLines(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("File open error");
+        return -1;
+    }
+
+    int count = 0;
+    char ch;
+
+    while ((ch = fgetc(file)) != EOF) {
+        if (ch == '\n') {
+            count++;
+        }
+    }
+
+    fclose(file);
+    return count;
+}
+
+/**
+ * \brief function to read "paramSensors.csv"
+ * until the end of the file.
+ *
+ * \param fileName location and name of the CSV file to read
+ * \return statusErrDef that values:
+ * - errOpenParamSensorsFile when the file fails to open
+ * - noError when the function exits successfully.
+ */
+statusErrDef readParamSensorsFile(const char* fileName) {
+    FILE* file = fopen(fileName, "r");
+    if (file == NULL)
+    {
+        perror("File open error");
+        return errOpenParamSensorsFile;
+    }
+    int pos = 0;
+
+    char line[MAX_CSV_LINE_SIZE];
+    while (fgets(line, sizeof(line), file) != NULL)
+    {
+        line[strcspn(line, "\n")] = 0;
+        fillParamSensorsStruct(line, pos);
+        pos++;
+    }
+
+    fclose(file);
+    return noError;
+}
+
+/**
+ * \brief function to fill in the sensors parameters structure.
+ *
+ * \param line the CSV line to read.
+ * \param pos the position of the line in the CSV file.
+ */
+void fillParamSensorsStruct(char* line, int pos) {
+    char* token = strtok(line, ";");
+    int column = 0;
+
+    while (token != NULL)
+    {
+        switch (column)
+        {
+        case 1:
+            paramSensors->id[pos] = (uint16_t)strtol(token, NULL, 0);
+            break;
+        case 2:
+            paramSensors->minCriticalValue[pos] = atoi(token);
+            break;
+        case 3:
+            paramSensors->minWarnValue[pos] = atoi(token);
+            break;
+        case 5:
+            paramSensors->maxWarnValue[pos] = atoi(token);
+            break;
+        case 6:
+            paramSensors->maxCriticalValue[pos] = atoi(token);
+            break;
+        default:
+            break;
+        }
+        column++;
+        token = strtok(NULL, ";");
+    }
+}
+
+/**
+ * \brief function to initialize the CAN socket
+ *
+ * \return statusErrDef that values:
+ * - errCreateCANSocket when the CAN socket creation fails
+ * - errSetCANSocketBufSize when the CAN socket buffer size cannot be applied
+ * - errGetCANSocketFlags CAN socket flags cannot be read
+ * - errSetCANSocketNonBlocking when the CAN socket non blocking flag cannot be set
+ * - errBindCANAddr when the CAN address cannot be bound to the CAN socket
+ * - noError when the function exits successfully.
+ */
 statusErrDef initCANSocket() {
 	statusErrDef ret = noError;
 	struct sockaddr_can addr;
@@ -56,6 +190,17 @@ statusErrDef initCANSocket() {
 	return ret;
 }
 
+/**
+ * \brief function to initialize the UDP socket
+ *
+ * \return statusErrDef that values:
+ * - errCreateUDPSocket when the UDP socket creation fails
+ * - errSetUDPSocketBufSize when the UDP socket buffer size cannot be applied
+ * - errGetUDPSocketFlags UDP socket flags cannot be read
+ * - errSetUDPSocketNonBlocking when the UDP sucket non blocking flag cannot be set
+ * - errBindUDPAddr when the UDP address cannot be bound to the UDP socket
+ * - noError when the function exits successfully.
+ */
 statusErrDef initUDPSocket() {
 	statusErrDef ret = noError;
     struct sockaddr_in serverAddr;
@@ -109,6 +254,9 @@ statusErrDef initUDPSocket() {
  */
 statusErrDef initOBDH() {
 	statusErrDef ret = noError;
+	ret = initSensorParamCSV();
+	if(ret != noError)
+		return ret;
 	ret = initCANSocket();
 	return ret;
 }

@@ -29,12 +29,11 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut, busTypeDef busType);
+std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
 statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut);
 statusErrDef sendTelemToTTC(const statusErrDef statusErr);
 statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue);
 statusErrDef recieveTCFromTTC();
-
 statusErrDef checkSensors();
 statusErrDef checkTC();
 
