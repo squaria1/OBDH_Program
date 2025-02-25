@@ -14,23 +14,13 @@
 uint8_t counter = 0;
 uint16_t mainStateTC = 0xFFFF;
 
-int toInteger(std::string str) {
-	using namespace std;
-	stringstream ss;
-	ss << str;
-	int avalue;
-	if (str.size() >= 2 && str[0] == '0' && (str[1] == 'X' || str[1] == 'x')) {
-		ss >> hex >> avalue;
-	} else {
-		ss >> avalue;
-	}
-	return avalue;
-}
-
 /**
- * \brief function to send telemetry to the TT&C subsystem
+ * \brief function to generate a CCSDS packet wrapping user data
  *
- * \return a CCSDS packet to be sent
+ * \param dataOut the data to recieve from a UDP or CAN frame,
+ * cut in a vector of bytes
+ *
+ * \return packet a CCSDS packet to be sent
  */
 std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
 	uint16_t apid = 0x1AB;
@@ -90,7 +80,15 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
 	return packet;
 }
 
-
+/**
+ * \brief function to send telemetry to the TT&C subsystem
+ *
+ * \param statusErr the telemetry data (see statesDefine.h)
+ *
+ * \return statusErrDef that values:
+ * - errWriteUDPTelem when the telemetry can't be sent,
+ * - noError when the function exits successfully.
+ */
 statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 	statusErrDef ret = noError;
 	std::vector<uint8_t> telemOut;
@@ -121,6 +119,16 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 	return ret;
 }
 
+/**
+ * \brief function to send telemetry to the TT&C subsystem
+ *
+ * \param sensor the sensor ID (see statesDefine.h)
+ * \param sensorValue the sensor value in a series of bytes
+ *
+ * \return statusErrDef that values:
+ * - errWriteUDPTelem when the telemetry can't be sent,
+ * - noError when the function exits successfully.
+ */
 statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue) {
 	statusErrDef ret = noError;
 	std::vector<uint8_t> telemOut;
@@ -225,7 +233,7 @@ statusErrDef recieveTCFromTTC() {
  * \brief function to recieve telemetry from the Payload subsystem
  *
  * \return statusErrDef that values:
- * - errReadCANPayload when CAN frame can't be read,
+ * - errReadCANPayload when CAN frame can't be read from the Payload subsystem,
  * - noError when the function exits successfully.
  */
 statusErrDef recieveTelemFromPayload() {
@@ -251,7 +259,7 @@ statusErrDef recieveTelemFromPayload() {
  * \brief function to recieve telemetry from the EPS subsystem
  *
  * \return statusErrDef that values:
- * - errReadCANPayload when CAN frame can't be read,
+ * - errReadCANEPS when CAN frame can't be read from the EPS subsystem,
  * - noError when the function exits successfully.
  */
 statusErrDef recieveTelemFromEPS() {
@@ -275,6 +283,9 @@ statusErrDef recieveTelemFromEPS() {
 
 /**
  * \brief function to send telecommands to the Payload subsystem.
+ *
+ * \param TCOut the telecommands to transmit to a CAN frame to
+ * the payload subsystem, cut in a vector of bytes.
  *
  * \return statusErrDef that values:
  * - errCCSDSPacketTooLarge when the CCSDS packet is too large for the CAN FD frame (64 Bytes),
@@ -306,11 +317,20 @@ statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut) {
 	return ret;
 }
 
+/**
+ * \brief function to compare every sensor current values with the warning
+ * and critical bounds declared in the paramSensors.csv file.
+ *
+ * \return statusErrDef that values:
+ * - noError when the function exits successfully.
+ */
 statusErrDef compareSensorValuesWithParam() {
 	statusErrDef ret = noError;
 	for(int i = 1; i < lineCountSensorParamCSV; i++) {
+		// Check if the sensor current value is out of its warning bounds
 		if(paramSensors->currentValue[i] <= paramSensors->minWarnValue[i] ||
 			paramSensors->currentValue[i] >= paramSensors->maxWarnValue[i]) {
+				// Check if the sensor current value is out of its critical bounds
 				if(paramSensors->currentValue[i] <= paramSensors->minCriticalValue[i] ||
 				paramSensors->currentValue[i] >= paramSensors->maxCriticalValue[i]) {
 					sendTelemToTTC(errSensorCriticalValue);
@@ -326,6 +346,16 @@ statusErrDef compareSensorValuesWithParam() {
 	return ret;
 }
 
+/**
+ * \brief function to recieve sensor telemetry data from
+ * every spacecraft subsystems and check if their values
+ * are out of bounds.
+ *
+ * \return statusErrDef that values:
+ * - errReadCANPayload when CAN frame can't be read from the Payload subsystem,
+ * - errReadCANEPS when CAN frame can't be read from the EPS subsystem,
+ * - noError when the function exits successfully.
+ */
 statusErrDef checkSensors() {
 	statusErrDef ret = noError;
 	ret = recieveTelemFromPayload();
@@ -338,6 +368,15 @@ statusErrDef checkSensors() {
 	return ret;
 }
 
+/**
+ * \brief function to recieve telecommands from the TT&C subsystem
+ * and redirect sensor data as telemetry to the TT&C subsystem.
+ *
+ * \return statusErrDef that values:
+ * - errReadCANTC when CAN frame can't be read,
+ * - errWriteUDPTelem when the telemetry can't be sent,
+ * - noError when the function exits successfully.
+ */
 statusErrDef checkTC() {
 	counter++;
 	statusErrDef ret = noError;

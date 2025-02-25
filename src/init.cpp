@@ -67,6 +67,8 @@ statusErrDef initSensorParamCSV() {
  * \brief function to count the number of lines
  * in the paraSensors.csv file.
  *
+ * \param fileName location and name of the CSV file to read
+ *
  * \return the line count.
  */
 int countFileLines(const char *filename) {
