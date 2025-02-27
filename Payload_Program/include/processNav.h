@@ -18,6 +18,8 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
+statusErrDef calcNavFromDopplerShift();
+statusErrDef sendNavToUser();
 
 
 //------------------------------------------------------------------------------

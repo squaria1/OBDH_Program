@@ -83,6 +83,7 @@ int main() {
 
             printf("State has been changed to control mode\n");
             sendTelemToOBDH(infoStateToPayloadMode);
+            resetMsgTimer();
             state = payloadMode;
             break;
         case payloadMode:
@@ -96,7 +97,10 @@ int main() {
             }
 
             ret = recieve5GPackets();
-            if (ret == info5GPacketReceived) {
+            if(ret == noError) {
+                    printf("No 5G packet recieved.\n");
+            }
+            else if (ret == info5GPacketReceived) {
                 state = processMsg;
             }
             else if (ret == infoRecieve5GPacketsTimeout) {
@@ -109,7 +113,10 @@ int main() {
             }
 
             ret = recieveNavReq();
-            if (ret == infoNavReqReceived) {
+            if(ret == noError) {
+                printf("No nav request recieved.\n");
+            }
+            else if (ret == infoNavReqReceived) {
                 state = processNav;
             }
             else {
@@ -140,11 +147,24 @@ int main() {
                 sendTelemToOBDH(ret);
             }
 
+            resetMsgTimer();
             state = payloadMode;
             break;
         case idleMode:
+            ret = checkTC();
+            if (ret == noError) {
+                    printf("Check TC OK\n");
+            }
+            else {
+                printf("Error check TC! 0x%04X \n", ret);
+                sendTelemToOBDH(ret);
+            }
+
             ret = recieve5GPacketsIdle();
-            if (ret == info5GPacketReceived) {
+            if(ret == noError) {
+                    printf("No 5G packet recieved in Idle mode.\n");
+            }
+            else if (ret == info5GPacketReceived) {
                 state = processMsg;
             }
             else {
@@ -153,10 +173,39 @@ int main() {
             }
             break;
         case processNav:
+            ret = calcNavFromDopplerShift();
+            if (ret != noError) {
+                printf("Error calculating user position from doppler shift! 0x%04X \n", ret);
+                sendTelemToOBDH(ret);
+            }
+
+            ret = sendNavToUser();
+            if (ret != noError) {
+                printf("Error sending navigation data to the user! 0x%04X \n", ret);
+                sendTelemToOBDH(ret);
+            }
+
+            resetMsgTimer();
             state = payloadMode;
             break;
         case restart: // Restart program with systemd
             sendTelemToOBDH(infoStateToRestart);
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freeIntersat();
+                if (ret == noError) {
+                    printf("free Intersat OK\n");
+                    sendTelemToOBDH(infoFreeIntersatSuccess);
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free Intersat! 0x%04X \n", ret);
+                    sendTelemToOBDH(ret);
+                    sleep(ERROR_RETRY_TIME);
+                    retryCounter++;
+                }
+            }
 
             retryCounter = 0;
             while (retryCounter < NB_RETRIES) {

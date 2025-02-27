@@ -329,6 +329,8 @@ statusErrDef sendTCToSubsystem(std::vector<uint8_t> TCOut, subsystemDef subsyste
  * and critical bounds declared in the paramSensors.csv file.
  *
  * \return statusErrDef that values:
+ * - errSensorCriticalValue when a sensor has reached a minimum or maximum warning value from the paramSensors.csv file.
+ * - errSensorWarningValue when a sensor has reached a minimum or maximum critical value from the paramSensors.csv file.
  * - noError when the function exits successfully.
  */
 statusErrDef compareSensorValuesWithParam() {

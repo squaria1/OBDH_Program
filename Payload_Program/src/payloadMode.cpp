@@ -161,6 +161,9 @@ statusErrDef recieveTCFromOBDH() {
 		std::vector<uint8_t> *userData = ccsdsPacket->getUserDataField();
 		mainStateTC = ((*userData)[0] << 8) | (*userData)[1];
 
+		if(mainStateTC == 0x1701)
+			resetMsgTimer();
+
 		//get APID
 		std::cout << ccsdsPacket->getPrimaryHeader()->getAPIDAsInteger() << std::endl;
 		//dump packet content
@@ -183,6 +186,10 @@ statusErrDef checkTC() {
 	statusErrDef ret = noError;
 	ret = recieveTCFromOBDH();
 	return ret;
+}
+
+void resetMsgTimer() {
+	clock_gettime(CLOCK_MONOTONIC, &beginMsgTimer);
 }
 
 /**

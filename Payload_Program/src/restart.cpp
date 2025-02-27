@@ -61,5 +61,6 @@ statusErrDef freePayload() {
  */
 statusErrDef freeIntersat() {
 	statusErrDef ret = noError;
+	ret = closeUDPSocket();
 	return ret;
 }

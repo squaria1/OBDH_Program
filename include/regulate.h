@@ -18,4 +18,6 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
+statusErrDef regulateSubsystems();
+
 #endif

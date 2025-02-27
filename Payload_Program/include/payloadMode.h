@@ -35,6 +35,7 @@ statusErrDef recieveTCFromOBDH();
 statusErrDef checkTC();
 statusErrDef recieve5GPackets();
 statusErrDef recieveNavReq();
+void resetMsgTimer();
 
 
 //------------------------------------------------------------------------------

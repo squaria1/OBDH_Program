@@ -30,5 +30,6 @@
 statusErrDef closeCANSocket();
 statusErrDef freeOBDH();
 statusErrDef freePayload();
+statusErrDef freeIntersat();
 
 #endif

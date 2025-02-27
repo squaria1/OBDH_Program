@@ -201,7 +201,18 @@ int main() {
             sleep(MAIN_LOOP_TIME);
             break;
         case regulate: // Regulate subsystems when sensor out of bounds
-            printf("\n\n\nREGULATE STATE\n\n\n");
+            ret = regulateSubsystems();
+            if (ret == noError)
+                printf("Subsystems regulated.\n");
+            else if (ret == errSensorCriticalValue) {
+                printf("State has been changed to safe mode! 0x%04X \n", ret);
+                sendTelemToTTC(infoStateToSafeMode);
+                state = safeMode;
+            }
+            else {
+                printf("Error regulating subsystems! 0x%04X \n", ret);
+                sendTelemToTTC(ret);
+            }
             state = controlMode;
             break;
         case restart: // Restart program with systemd

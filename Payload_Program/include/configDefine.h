@@ -67,7 +67,7 @@
  * \brief When a 5G packet has not been recieved after
  * MSG_TIMEOUT seconds.
  */
-constexpr double MSG_TIMEOUT = 120.5;
+constexpr double MSG_TIMEOUT = 20.5;
 
 #define INTERSAT_IP_ADDRESS "192.168.1.3"
 

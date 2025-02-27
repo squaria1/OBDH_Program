@@ -49,8 +49,9 @@ typedef enum
 	// Process nav (from 0x10A0 to 0x10BF)
 
 	// Restart (from 0x10E0 to 0x10FF)
-	infoFreePayloadSuccess = 0x10E0,		/**< Payload subsystem memory freeing has succeeded.  */
+	infoFreeIntersatSuccess = 0x00E0,		/**< Intersatellite comms subsystem memory freeing has succeeded. */
 	infoFreeOBDHSuccess = 0x10E1,			/**< OBDH subsystem memory freeing has succeeded. */
+	infoFreePayloadSuccess = 0x10E2,		/**< Payload subsystem memory freeing has succeeded.  */
 
 	// Main state (from 0x1700 to 0x17FF)
 	infoStateToInit = 0x1700,				/**< The main state has been changed to initialisation. */
@@ -91,7 +92,6 @@ typedef enum
 	// Idle mode (from 0x1E80 to 0x1E9F)
 
 	// Process nav (from 0x1EA0 to 0x1EBF)
-
 
 	// Restart (from 0x1EE0 to 0x1EFF)
 	errCloseCANSocket = 0x1EF0,				/**< close CAN socket failed. */
