@@ -20,6 +20,16 @@ statusErrDef closeCANSocket() {
 	return ret;
 }
 
+
+statusErrDef closeUDPSocket() {
+	statusErrDef ret = noError;
+	if (close(socket_udp) < 0) {
+		perror("errCloseUDPSocket");
+		return errCloseUDPSocket;
+	}
+	return ret;
+}
+
 /**
  * \brief function to free variables of the OBDH subsystem
  *
@@ -39,6 +49,17 @@ statusErrDef freeOBDH() {
  * - noError when the function exits successfully.
  */
 statusErrDef freePayload() {
+	statusErrDef ret = noError;
+	return ret;
+}
+
+/**
+ * \brief function to free variables of the Intersat laser subsystem
+ *
+ * \return statusErrDef that values:
+ * - noError when the function exits successfully.
+ */
+statusErrDef freeIntersat() {
 	statusErrDef ret = noError;
 	return ret;
 }

@@ -149,7 +149,7 @@ int main() {
             break;
         case safeMode: // Enter safe mode procedure with telecommand or unable to regulate
             // send stop order to the payload subsystem
-            ret = sendTCToPayload({0x17,0xFF});
+            ret = sendTCToSubsystem({0x17,0xFF}, payloadSubsystem);
             if (ret == noError) {
                 printf("Send stop to payload OK\n");
                 sendTelemToTTC(infoSendStopPayloadSuccess);
@@ -320,8 +320,9 @@ int main() {
         default:
             break;
         }
+
         if(mainStateTC != 0xFFFF && mainStateTC != mainStateTCTemp &&
-            (mainStateTC & 0xF000) == 0x0000 && validStates.count(mainStateTC)) {
+            validStates.count(mainStateTC)) {
             state = static_cast<stateDef>(mainStateTC);
             mainStateTCTemp = mainStateTC;
         }

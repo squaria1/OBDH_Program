@@ -46,6 +46,11 @@
 #define CAN_ID_PAYLOAD 0x200
 
 /**
+ * \brief Broadcast CAN ID in 12 bits.
+ */
+#define CAN_ID_BROADCAST 0xFFF
+
+/**
  * \brief UDP socket buffer size in bytes
  * (fills up when frame are received but not read).
  */

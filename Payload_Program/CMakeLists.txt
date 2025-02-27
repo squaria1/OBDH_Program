@@ -16,6 +16,9 @@ SET(PAYLOAD_SOURCES
     ${PAYLOAD_SOURCE_DIR}/main.cpp
     ${PAYLOAD_SOURCE_DIR}/init.cpp
     ${PAYLOAD_SOURCE_DIR}/payloadMode.cpp
+    ${PAYLOAD_SOURCE_DIR}/processMsg.cpp
+    ${PAYLOAD_SOURCE_DIR}/idleMode.cpp
+    ${PAYLOAD_SOURCE_DIR}/processNav.cpp
     ${PAYLOAD_SOURCE_DIR}/restart.cpp
     )
 

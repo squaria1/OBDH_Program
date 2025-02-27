@@ -75,13 +75,14 @@ typedef enum
 	// Safe mode (from 0x0E20 to 0x0E3F)
 
 	// Control mode (from 0x0E40 to 0x0E5F)
-	errReadCANPayload = 0x0E20,				/**< Read CAN bus payload subsystem telemetry failed. */
-	errWriteCANPayload = 0x0E21,			/**< Write payload subsystem TCs to the CAN bus failed. */
-	errReadCANEPS = 0x0E22,					/**< Read CAN bus EPS subsystem telemetry failed. */
-	errCCSDSPacketTooLarge = 0x0E23,		/**< Error CCSDS packet is too large for the CAN FD frame (64 Bytes). */
-	errWriteUDPTelem = 0x0E24,				/**< Send OBDH telemetry CCSDS packet through UDP failed. */
-	errSensorWarningValue = 0x0E25,			/**< A sensor has reached a minimum or maximum warning value from the paramSensors.csv file. */
-	errSensorCriticalValue = 0x0E26,		/**< A sensor has reached a minimum or maximum critical value from the paramSensors.csv file. */
+	errReadCANTelem = 0x0E20,				/**< Write payload subsystem TCs to the CAN bus failed. */
+	errCCSDSPacketTooLarge = 0x0E21,		/**< Error CCSDS packet is too large for the CAN FD frame (64 Bytes). */
+	errWriteUDPTelem = 0x0E22,				/**< Send OBDH telemetry CCSDS packet through UDP failed. */
+	errWriteCANTC = 0x0E23,					/**< Write CCSDS TC packet to the CAN bus failed. */
+	errSensorWarningValue = 0x0E24,			/**< A sensor has reached a minimum or maximum warning value from the paramSensors.csv file. */
+	errSensorCriticalValue = 0x0E25,		/**< A sensor has reached a minimum or maximum critical value from the paramSensors.csv file. */
+	errTCToWrongSubsystem = 0x0E26,			/**< Trying to send a telecommand to a subsystem that should not recieve any. */
+	errCCSDSPacketUninterpretable = 0x0E27,	/**< The CCSDS packet recieved cannot be interpreted (wrong sequence or corrupted data). */
 
 	// Restart (from 0x0EE0 to 0x0EFF)
 	errCloseCANSocket = 0x0EF0,				/**< close CAN socket failed. */
@@ -95,12 +96,12 @@ typedef enum
  */
 typedef enum
 {
-	init = 0x0700, 									/**< Initialize all subsystems with status and error telemetry. */
-	safeMode = 0x0701, 								/**< Spacecraft to safe mode (payload shutdown and all subsystems to safe mode). */
-	controlMode = 0x0702,							/**< Spacecraft normal operation (check TCs, send telemetry, compare sensor values). */
-	regulate = 0x0703,								/**< Regulation procedures when one or more sensors reach warning values. */
-	restart = 0x07FF, 								/**< Free all subsystems variables, systemd script will restart the program when ending. */
-	ending = 0x0FFF, 								/**< Stop the program. */
+	init = 0x0700, 							/**< Initialize all subsystems with status and error telemetry. */
+	safeMode = 0x0701, 						/**< Spacecraft to safe mode (payload shutdown and all subsystems to safe mode). */
+	controlMode = 0x0702,					/**< Spacecraft normal operation (check TCs, send telemetry, compare sensor values). */
+	regulate = 0x0703,						/**< Regulation procedures when one or more sensors reach warning values. */
+	restart = 0x07FF, 						/**< Free all subsystems variables, systemd script will restart the program when ending. */
+	ending = 0x0FFF, 						/**< Stop the program. */
 } stateDef;
 
 const std::unordered_set<uint16_t> validStates = {
@@ -109,13 +110,25 @@ const std::unordered_set<uint16_t> validStates = {
 
 /**
  * \enum sensorDef
- * \brief list of connection type
+ * \brief list of the spacecraft sensors
  */
 typedef enum
 {
-	sensor1 = 0x0900,				/**<  */
-	sensor2 = 0x0901,				/**<  */
-	sensor3 = 0x0902,				/**<  */
+	sensor1 = 0x0900,						/**<  */
+	sensor2 = 0x0901,						/**<  */
+	sensor3 = 0x0902,						/**<  */
 } sensorDef;
+
+/**
+ * \enum subsystemDef
+ * \brief list of the spacecraft subsystems
+ */
+typedef enum
+{
+	OBDHSubsystem = 0x0000,					/**< On Board Data Handling subsystem */
+	payloadSubsystem = 0x1000,				/**< Payload subsystem (communication service) */
+	EPSSubsystem = 0x2000,					/**< Electrical Power System subsystem */
+	everySubsystems = 0xF000,				/**< To broadcast to all subsystems */
+} subsystemDef;
 
 #endif

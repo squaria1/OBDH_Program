@@ -21,6 +21,6 @@
  */
 statusErrDef broadcastSafeMode() {
     statusErrDef ret = noError;
-
+    ret = sendTCToSubsystem({0xF7,0x01}, everySubsystems);
     return ret;
 }

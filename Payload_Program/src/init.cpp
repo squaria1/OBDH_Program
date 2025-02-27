@@ -16,6 +16,11 @@
 int socket_can = 0;
 
 /**
+ * \brief the UDP socket global variable.
+ */
+int socket_udp = 0;
+
+/**
  * \brief function to initialize the CAN socket
  *
  * \return statusErrDef that values:
@@ -70,6 +75,60 @@ statusErrDef initCANSocket() {
 }
 
 /**
+ * \brief function to initialize the UDP socket
+ *
+ * \return statusErrDef that values:
+ * - errCreateUDPSocket when the UDP socket creation fails
+ * - errSetUDPSocketBufSize when the UDP socket buffer size cannot be applied
+ * - errGetUDPSocketFlags UDP socket flags cannot be read
+ * - errSetUDPSocketNonBlocking when the UDP sucket non blocking flag cannot be set
+ * - errBindUDPAddr when the UDP address cannot be bound to the UDP socket
+ * - noError when the function exits successfully.
+ */
+statusErrDef initUDPSocket() {
+	statusErrDef ret = noError;
+    struct sockaddr_in serverAddr;
+
+    // Create UDP socket
+    socket_udp = socket(AF_INET, SOCK_DGRAM, 0);
+    if (socket_udp < 0) {
+        perror("Socket creation failed");
+        return errCreateUDPSocket;
+    }
+
+	int buf_size = UDP_SOCKET_BUFFER_SIZE;
+	if(setsockopt(socket_udp, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
+		perror("errSetUDPSocketBufSize");
+		return errSetUDPSocketBufSize;
+	}
+
+	int flags = fcntl(socket_udp, F_GETFL, 0);
+	if(flags == -1) {
+		perror("errGetUDPSocketFlags");
+		return errGetUDPSocketFlags;
+	}
+    if(fcntl(socket_udp, F_SETFL, flags | O_NONBLOCK) == -1) {
+		perror("errSetUDPSocketNonBlocking");
+		return errSetUDPSocketNonBlocking;
+	}
+
+    // Bind to UDP port
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(UDP_INTERSAT_TO_PAYLOAD_PORT);
+
+    if (bind(socket_udp, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        perror("Bind failed");
+        return errBindUDPAddr;
+    }
+
+
+    printf("Listening for 5G packets comming from the intersat subsystem on UDP port %d ...\n", UDP_INTERSAT_TO_PAYLOAD_PORT);
+	return ret;
+}
+
+/**
  * \brief function to initialize the OBDH subsystem
  *
  * \return statusErrDef that values:
@@ -91,5 +150,17 @@ statusErrDef initOBDH() {
  */
 statusErrDef initPayload() {
 	statusErrDef ret = noError;
+	return ret;
+}
+
+/**
+ * \brief function to initialize the Intersat laser subsystem
+ *
+ * \return statusErrDef that values:
+ * - noError when the function exits successfully.
+ */
+statusErrDef initIntersat() {
+	statusErrDef ret = noError;
+	ret = initUDPSocket();
 	return ret;
 }

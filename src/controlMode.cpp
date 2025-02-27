@@ -191,6 +191,8 @@ void DumpUDPData(uint8_t *data, ssize_t length) {
  */
 statusErrDef recieveTCFromTTC() {
 	statusErrDef ret = noError;
+	uint16_t mainStateTCRecieved;
+	uint16_t mostSigHexDigitTC;
 	struct sockaddr_in clientAddr;
     socklen_t addrLen = sizeof(clientAddr);
     uint8_t buffer[UDP_MAX_BUFFER_SIZE];
@@ -214,12 +216,30 @@ statusErrDef recieveTCFromTTC() {
 				std::cout << std::hex << (int)buffer[i] << " ";
 			}
 			std::cout << std::endl;
+
+			return errCCSDSPacketUninterpretable;
 		}
 
 		std::vector<uint8_t> *userData = ccsdsPacket->getUserDataField();
-		mainStateTC = ((*userData)[0] << 8) | (*userData)[1];
 
+		mainStateTCRecieved = ((*userData)[0] << 8) | (*userData)[1];
+		mostSigHexDigitTC = mainStateTCRecieved & 0xF000;
 
+		switch(mostSigHexDigitTC) {
+			case OBDHSubsystem:
+				mainStateTC = mainStateTCRecieved;
+				break;
+			case payloadSubsystem:
+				ret = sendTCToSubsystem(*userData, payloadSubsystem);
+				break;
+			case everySubsystems:
+				mainStateTC = mainStateTCRecieved & 0x0FFF;
+				ret = sendTCToSubsystem(*userData, everySubsystems);
+				break;
+			default:
+				return errTCToWrongSubsystem;
+				break;
+		}
 
 		//get APID
 		std::cout << ccsdsPacket->getPrimaryHeader()->getAPIDAsInteger() << std::endl;
@@ -230,45 +250,19 @@ statusErrDef recieveTCFromTTC() {
 }
 
 /**
- * \brief function to recieve telemetry from the Payload subsystem
+ * \brief function to recieve telemetry from all subsystems
  *
  * \return statusErrDef that values:
- * - errReadCANPayload when CAN frame can't be read from the Payload subsystem,
+ * - errReadCANTelem when CAN frame can't be read from the Payload subsystem,
  * - noError when the function exits successfully.
  */
-statusErrDef recieveTelemFromPayload() {
+statusErrDef recieveTelemFromSubsystems() {
 	statusErrDef ret = noError;
 	struct canfd_frame frame;
 
     if (read(socket_can, &frame, sizeof(struct canfd_frame)) < 0) {
-        perror("errReadCANPayload");
-        return errReadCANPayload;
-    }
-
-    std::cout << "Received CCSDS packet (" << static_cast<int>(frame.len) << " bytes)\n";
-    std::cout << "Data: ";
-    for (size_t i = 0; i < frame.len; i++) {
-        printf("%02X ", frame.data[i]);
-    }
-    std::cout << std::endl;
-
-	return ret;
-}
-
-/**
- * \brief function to recieve telemetry from the EPS subsystem
- *
- * \return statusErrDef that values:
- * - errReadCANEPS when CAN frame can't be read from the EPS subsystem,
- * - noError when the function exits successfully.
- */
-statusErrDef recieveTelemFromEPS() {
-	statusErrDef ret = noError;
-	struct canfd_frame frame;
-
-    if (read(socket_can, &frame, sizeof(struct canfd_frame)) < 0) {
-        perror("errReadCANEPS");
-        return errReadCANEPS;
+        perror("errReadCANTelem");
+        return errReadCANTelem;
     }
 
     std::cout << "Received CCSDS packet (" << static_cast<int>(frame.len) << " bytes)\n";
@@ -292,8 +286,21 @@ statusErrDef recieveTelemFromEPS() {
  * - errWriteCANPayload when write payload subsystem TCs to the CAN bus fails,
  * - noError when the function exits successfully.
  */
-statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut) {
+statusErrDef sendTCToSubsystem(std::vector<uint8_t> TCOut, subsystemDef subsystem) {
 	statusErrDef ret = noError;
+	canid_t canId = 0x000;
+
+	switch(subsystem) {
+		case payloadSubsystem:
+				canId = CAN_ID_PAYLOAD;
+			break;
+		case everySubsystems:
+				canId = CAN_ID_BROADCAST;
+		default:
+			return errTCToWrongSubsystem;
+			break;
+	}
+
 	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(TCOut);
 	if (ccsdsPacket.size() > DATA_OUT_CAN_MAX_LENGTH) {
         std::cerr << "Error: CCSDS packet too large for single CAN FD frame\n";
@@ -301,14 +308,14 @@ statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut) {
     }
 
     struct canfd_frame frame;
-    frame.can_id = CAN_ID_OBDH;  // Set appropriate CAN ID
+    frame.can_id = canId;  // Set appropriate CAN ID
     frame.len = ccsdsPacket.size();  // Payload length
 
     std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());  // Copy CCSDS packet into frame
 
     if (write(socket_can, &frame, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
         perror("CAN FD send error");
-		return errWriteCANPayload;
+		return errWriteCANTC;
     }
     else {
 		std::cout << "Sent CCSDS packet (" << ccsdsPacket.size() << " bytes) in a single CAN FD frame\n";
@@ -352,16 +359,12 @@ statusErrDef compareSensorValuesWithParam() {
  * are out of bounds.
  *
  * \return statusErrDef that values:
- * - errReadCANPayload when CAN frame can't be read from the Payload subsystem,
  * - errReadCANEPS when CAN frame can't be read from the EPS subsystem,
  * - noError when the function exits successfully.
  */
 statusErrDef checkSensors() {
 	statusErrDef ret = noError;
-	ret = recieveTelemFromPayload();
-	if(ret != noError)
-		return ret;
-	ret = recieveTelemFromEPS();
+	ret = recieveTelemFromSubsystems();
 	if(ret != noError)
 		return ret;
 	ret = compareSensorValuesWithParam();

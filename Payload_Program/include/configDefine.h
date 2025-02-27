@@ -36,6 +36,12 @@
 #define CAN_SOCKET_BUFFER_SIZE 100000
 
 /**
+ * \brief UDP socket buffer size in bytes
+ * (fills up when frame are received but not read).
+ */
+#define UDP_SOCKET_BUFFER_SIZE 100000
+
+/**
  * \brief OBDH CAN ID in 12 bits.
  */
 #define CAN_ID_OBDH 0x100
@@ -62,6 +68,12 @@
  * MSG_TIMEOUT seconds.
  */
 constexpr double MSG_TIMEOUT = 120.5;
+
+#define INTERSAT_IP_ADDRESS "192.168.1.3"
+
+#define UDP_PAYLOAD_TO_INTERSAT_PORT 4010
+
+#define UDP_INTERSAT_TO_PAYLOAD_PORT 4020
 
 
 

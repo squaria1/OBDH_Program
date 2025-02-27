@@ -18,7 +18,7 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
-
+statusErrDef recieve5GPacketsIdle();
 
 //------------------------------------------------------------------------------
 // global vars

@@ -23,6 +23,7 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <cstring>
 #include <cstdlib>
 #include <fcntl.h>
@@ -31,13 +32,16 @@
 #include <linux/can/raw.h>
 
 statusErrDef initCANSocket();
+statusErrDef initUDPSocket();
 statusErrDef initOBDH();
 statusErrDef initPayload();
+statusErrDef initIntersat();
 
 
 //------------------------------------------------------------------------------
 // global vars
 //------------------------------------------------------------------------------
 extern int socket_can;
+extern int socket_udp;
 
 #endif

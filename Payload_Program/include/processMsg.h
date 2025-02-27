@@ -15,10 +15,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <vector>
+#include <cstdint>
 #include "configDefine.h"
 #include "statesDefine.h"
 
+#include <unistd.h>
 
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+statusErrDef aStarPathAlgorithm();
+statusErrDef transmitToGS();
+statusErrDef transmitToIntersat(std::vector<uint8_t> packet);
 
 //------------------------------------------------------------------------------
 // global vars

@@ -13,6 +13,9 @@
 #include "statesDefine.h"
 #include "init.h"
 #include "payloadMode.h"
+#include "processMsg.h"
+#include "idleMode.h"
+#include "processNav.h"
 #include "restart.h"
 
  /**
@@ -32,6 +35,22 @@ int main() {
             // Retry to initialize NB_RETRIES times with ERROR_RETRY_TIME delay between each retries
             retryCounter = 0;
             while (retryCounter < NB_RETRIES) {
+                ret = initOBDH();
+                if (ret == noError) {
+                    printf("init OBDH OK\n");
+                    sendTelemToOBDH(infoInitOBDHSuccess);
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error init OBDH! 0x%04X \n", ret);
+                    sendTelemToOBDH(ret);
+                    sleep(ERROR_RETRY_TIME);
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
                 ret = initPayload();
                 if (ret == noError) {
                     printf("init Payload OK\n");
@@ -48,14 +67,14 @@ int main() {
 
             retryCounter = 0;
             while (retryCounter < NB_RETRIES) {
-                ret = initOBDH();
+                ret = initIntersat();
                 if (ret == noError) {
-                    printf("init OBDH OK\n");
-                    sendTelemToOBDH(infoInitOBDHSuccess);
+                    printf("init Intersat OK\n");
+                    sendTelemToOBDH(infoInitIntersatSuccess);
                     retryCounter = NB_RETRIES;
                 }
                 else {
-                    printf("Error init OBDH! 0x%04X \n", ret);
+                    printf("Error init Intersat! 0x%04X \n", ret);
                     sendTelemToOBDH(ret);
                     sleep(ERROR_RETRY_TIME);
                     retryCounter++;
@@ -77,13 +96,11 @@ int main() {
             }
 
             ret = recieve5GPackets();
-            if (ret == noError) {
-                    printf("No 5G packet received\n");
-            }
-            else if (ret == info5GPacketReceived) {
+            if (ret == info5GPacketReceived) {
                 state = processMsg;
             }
             else if (ret == infoRecieve5GPacketsTimeout) {
+                sendTelemToOBDH(infoStateToIdleMode);
                 state = idleMode;
             }
             else {
@@ -92,10 +109,7 @@ int main() {
             }
 
             ret = recieveNavReq();
-            if (ret == noError) {
-                printf("No nav request received\n");
-            }
-            else if (ret == infoNavReqReceived) {
+            if (ret == infoNavReqReceived) {
                 state = processNav;
             }
             else {
@@ -104,6 +118,42 @@ int main() {
             }
 
             sleep(MAIN_LOOP_TIME);
+            break;
+        case processMsg:
+            ret = aStarPathAlgorithm();
+            if (ret == infoDirectPathToGS) {
+                ret = transmitToGS();
+                if (ret != noError) {
+                    printf("Error transmitting 5G packet to the ground station! 0x%04X \n", ret);
+                    sendTelemToOBDH(ret);
+                }
+            }
+            else if (ret == infoPathToNextNode) {
+                ret = transmitToIntersat({0x11, 0x22});
+                if (ret != noError) {
+                    printf("Error transmitting 5G packet to the intersatellite subsystem! 0x%04X \n", ret);
+                    sendTelemToOBDH(ret);
+                }
+            }
+            else {
+                printf("Error in A star path algorithm! 0x%04X \n", ret);
+                sendTelemToOBDH(ret);
+            }
+
+            state = payloadMode;
+            break;
+        case idleMode:
+            ret = recieve5GPacketsIdle();
+            if (ret == info5GPacketReceived) {
+                state = processMsg;
+            }
+            else {
+                printf("Error in Idle loop! 0x%04X \n", ret);
+                sendTelemToOBDH(ret);
+            }
+            break;
+        case processNav:
+            state = payloadMode;
             break;
         case restart: // Restart program with systemd
             sendTelemToOBDH(infoStateToRestart);

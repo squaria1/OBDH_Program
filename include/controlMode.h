@@ -30,9 +30,10 @@
 #include <linux/can/raw.h>
 
 std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
-statusErrDef sendTCToPayload(std::vector<uint8_t> TCOut);
+statusErrDef sendTCToSubsystem(std::vector<uint8_t> TCOut, subsystemDef subsystem);
 statusErrDef sendTelemToTTC(const statusErrDef statusErr);
 statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue);
+statusErrDef recieveTelemFromSubsystems();
 statusErrDef recieveTCFromTTC();
 statusErrDef checkSensors();
 statusErrDef checkTC();
