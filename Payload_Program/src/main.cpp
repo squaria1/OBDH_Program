@@ -28,6 +28,7 @@ int main() {
     statusErrDef    ret = noError;
     int             retryCounter = 0;
     uint16_t        mainStateTCTemp = 0xFFFF;
+    struct timespec mainSleep = {0, MAIN_LOOP_TIME};
 
     while (state != ending) {
         switch (state) {
@@ -124,7 +125,7 @@ int main() {
                 sendTelemToOBDH(ret);
             }
 
-            sleep(MAIN_LOOP_TIME);
+            nanosleep(&mainSleep, NULL);
             break;
         case processMsg:
             ret = aStarPathAlgorithm();
@@ -171,6 +172,8 @@ int main() {
                 printf("Error in Idle loop! 0x%04X \n", ret);
                 sendTelemToOBDH(ret);
             }
+
+            nanosleep(&mainSleep, NULL);
             break;
         case processNav:
             ret = calcNavFromDopplerShift();

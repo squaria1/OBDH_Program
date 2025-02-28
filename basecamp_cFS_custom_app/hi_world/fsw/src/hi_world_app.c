@@ -114,7 +114,7 @@ void HI_WORLD_AppMain(void)
       
       RunStatus = ProcessCommands();  /* Pends indefinitely & manages CFE_ES_PerfLogEntry() calls */
       
-      if (setParamTemp != Hi_world.SetParamCmdVal && setParamTemp != 0xFFFF) {
+      if (setParamTemp != Hi_world.SetParamCmdVal && setParamTemp != 0x0000) {
           SendOBDHCommand(Hi_world.SetParamCmdVal);
       }
       setParamTemp = Hi_world.SetParamCmdVal;
@@ -133,7 +133,7 @@ void SendOBDHCommand(uint16_t payload_value)
 {
     CCSDS_Packet_t *packet = (CCSDS_Packet_t *)malloc(sizeof(CCSDS_Packet_t));  
     if (packet == NULL) {
-        perror("Memory allocation failed");
+        CFE_EVS_SendEvent(HI_WORLD_NOOP_EID, CFE_EVS_EventType_ERROR, "Memory allocation failed");
         return;
     }
 
@@ -164,9 +164,9 @@ void SendOBDHCommand(uint16_t payload_value)
                                 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
 
     if (bytes_sent < 0) {
-        perror("UDP CCSDS packet not sent");
+        CFE_EVS_SendEvent(HI_WORLD_NOOP_EID, CFE_EVS_EventType_ERROR, "UDP CCSDS packet not sent");
     } else {
-        printf("Sent CCSDS packet with param: 0x%04X", payload_value);
+        CFE_EVS_SendEvent(HI_WORLD_NOOP_EID, CFE_EVS_EventType_INFORMATION, "Sent CCSDS packet with param: 0x%04X", payload_value);
     }
 
     // Free memory
@@ -347,13 +347,21 @@ bool HI_WORLD_ResetAppCmd(void *ObjDataPtr, const CFE_MSG_Message_t *MsgPtr)
 
 bool HI_WORLD_SetParamCmd(void* ObjDataPtr, const CFE_MSG_Message_t *MsgPtr)
 {
+  setParamTemp = 0xFFFF;
    const HI_WORLD_SetParam_CmdPayload_t *CmdPayload = CMDMGR_PAYLOAD_PTR(MsgPtr, HI_WORLD_SetParam_t);
-   
-   CFE_EVS_SendEvent (HI_WORLD_SET_PARAM_EID, CFE_EVS_EventType_INFORMATION,
-                      "Set Parameter commmand received a parameter value %d",
-                      CmdPayload->Param);
 
-   Hi_world.SetParamCmdVal = CmdPayload->Param;
+  if(CmdPayload->Param_Payload == 0) {
+      Hi_world.SetParamCmdVal = CmdPayload->Param_OBDH;
+      CFE_EVS_SendEvent (HI_WORLD_SET_PARAM_EID, CFE_EVS_EventType_INFORMATION,
+                  "Set Parameter commmand received a parameter value 0x%04X",
+                   CmdPayload->Param_OBDH);
+  }
+  else {
+      Hi_world.SetParamCmdVal = CmdPayload->Param_Payload;
+      CFE_EVS_SendEvent (HI_WORLD_SET_PARAM_EID, CFE_EVS_EventType_INFORMATION,
+                  "Set Parameter commmand received a parameter value 0x%04X",
+                   CmdPayload->Param_Payload);
+  }
 
    return true;
 

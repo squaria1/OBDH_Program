@@ -38,15 +38,15 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
 	size_t sequenceCount = 1;
 
 	//constructs an empty instance
-	CCSDSSpacePacket* ccsdsPacketIN = new CCSDSSpacePacket();
+	CCSDSSpacePacket ccsdsPacketIN;
 	//set APID
-	ccsdsPacketIN->getPrimaryHeader()->setAPID(apid);
+	ccsdsPacketIN.getPrimaryHeader()->setAPID(apid);
 	//set Packet Type (Telemetry or Command)
-	ccsdsPacketIN->getPrimaryHeader()->setPacketType(CCSDSSpacePacketPacketType::TelemetryPacket);
+	ccsdsPacketIN.getPrimaryHeader()->setPacketType(CCSDSSpacePacketPacketType::TelemetryPacket);
 	//set Secondary Header Flag (whether this packet has the Secondary Header part)
-	ccsdsPacketIN->getPrimaryHeader()->setSecondaryHeaderFlag(CCSDSSpacePacketSecondaryHeaderFlag::NotPresent);
+	ccsdsPacketIN.getPrimaryHeader()->setSecondaryHeaderFlag(CCSDSSpacePacketSecondaryHeaderFlag::NotPresent);
 	//set segmentation information
-	ccsdsPacketIN->getPrimaryHeader()->setSequenceFlag(CCSDSSpacePacketSequenceFlag::UnsegmentedUserData);
+	ccsdsPacketIN.getPrimaryHeader()->setSequenceFlag(CCSDSSpacePacketSequenceFlag::UnsegmentedUserData);
 	//set Category
 	//ccsdsPacketIN->getSecondaryHeader()->setCategory(category);
 	//set secondary header type (whether ADU Channel presence)
@@ -57,33 +57,33 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
 	//set ADU Segmentation Flag (whether ADU is segmented)
 	//ccsdsPacketIN->getSecondaryHeader()->setADUSegmentFlag(CCSDSSpacePacketADUSegmentFlag::UnsegmentedADU);
 	//set counters
-	ccsdsPacketIN->getPrimaryHeader()->setSequenceCount(sequenceCount);
+	ccsdsPacketIN.getPrimaryHeader()->setSequenceCount(sequenceCount);
 	//ccsdsPacketIN->getSecondaryHeader()->setADUCount(aduCount);
 	//set absolute time
 	//uint8_t time[4];
 	//ccsdsPacketIN->getSecondaryHeader()->setTime(time);
 	//set data
-	ccsdsPacketIN->setUserDataField(dataOut);
-	ccsdsPacketIN->setPacketDataLength();
+	ccsdsPacketIN.setUserDataField(dataOut);
+	ccsdsPacketIN.setPacketDataLength();
 	//get packet as byte array
-	std::vector<uint8_t> packet = ccsdsPacketIN->getAsByteVector();
+	std::vector<uint8_t> packet = ccsdsPacketIN.getAsByteVector();
 
 	/*
 	printf("\n\n\n==================================================\n\n\n");
 
 	//constructs an empty instance
-	CCSDSSpacePacket* ccsdsPacket = new CCSDSSpacePacket();
+	CCSDSSpacePacket ccsdsPacket;
 
 	//interpret an input data as a CCSDS SpacePacket
-	ccsdsPacket->interpret(packet.data(),packet.size());
+	ccsdsPacket.interpret(packet.data(),packet.size());
 	//check if the packet has Secondary Header
-	if(ccsdsPacket->isSecondaryHeaderPresent()){
+	if(ccsdsPacket.isSecondaryHeaderPresent()){
 		printf("HAS A SECONDARY HEADER\n");
 	}
 	//get APID
-	std::cout << ccsdsPacket->getPrimaryHeader()->getAPIDAsInteger() << std::endl;
+	std::cout << ccsdsPacket.getPrimaryHeader()->getAPIDAsInteger() << std::endl;
 	//dump packet content
-	std::cout << ccsdsPacket->toString() << std::endl;
+	std::cout << ccsdsPacket.toString() << std::endl;
 	*/
 
 	return packet;
@@ -142,11 +142,11 @@ statusErrDef recieveTCFromOBDH() {
 	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct canfd_frame));
 	if (sizeReceived > 0) {
 		//constructs an empty instance
-		CCSDSSpacePacket* ccsdsPacket = new CCSDSSpacePacket();
+		CCSDSSpacePacket ccsdsPacket;
 		//interpret an input data as a CCSDS SpacePacket
 		try {
 			// Attempt to interpret the packet
-			ccsdsPacket->interpret(frame.data, sizeReceived);
+			ccsdsPacket.interpret(frame.data, sizeReceived);
 		} catch (CCSDSSpacePacketException &e) {
 			// Print the exception details to help debug
 			std::cerr << "CCSDS Packet Error: " << e.toString() << std::endl;
@@ -158,16 +158,16 @@ statusErrDef recieveTCFromOBDH() {
 			std::cout << std::endl;
 		}
 
-		std::vector<uint8_t> *userData = ccsdsPacket->getUserDataField();
+		std::vector<uint8_t> *userData = ccsdsPacket.getUserDataField();
 		mainStateTC = ((*userData)[0] << 8) | (*userData)[1];
 
 		if(mainStateTC == 0x1701)
 			resetMsgTimer();
 
 		//get APID
-		std::cout << ccsdsPacket->getPrimaryHeader()->getAPIDAsInteger() << std::endl;
+		std::cout << ccsdsPacket.getPrimaryHeader()->getAPIDAsInteger() << std::endl;
 		//dump packet content
-		std::cout << ccsdsPacket->toString() << std::endl;
+		std::cout << ccsdsPacket.toString() << std::endl;
 	} else {
         perror("errReadCANPayload");
         return errReadCANPayload;

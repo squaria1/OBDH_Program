@@ -50,19 +50,31 @@
       </EnumeratedDataType>
 -->
 
-      <EnumeratedDataType name="SetParam_Mode" shortDescription="Change the OBDH main state of the state machine">
+      <EnumeratedDataType name="SetParam_Mode_OBDH" shortDescription="Change the OBDH main state of the state machine">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
+          <Enumeration label="-- NOT_SELECTED --"  value="0x0000" shortDescription="" />
           <Enumeration label="SafeMode"  value="0x0701" shortDescription="" />
           <Enumeration label="ControlMode" value="0x0702" shortDescription="" />
           <Enumeration label="Regulate"  value="0x0703" shortDescription="" />
           <Enumeration label="Restart"  value="0x07FF" shortDescription="" />
         </EnumerationList>
       </EnumeratedDataType>
+      
+      <EnumeratedDataType name="SetParam_Mode_Payload" shortDescription="Change the OBDH main state of the state machine">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="-- NOT_SELECTED --"  value="0x0000" shortDescription="" />
+          <Enumeration label="IdleMode"  value="0x1703" shortDescription="" />
+          <Enumeration label="PayloadMode" value="0x1704" shortDescription="" />
+          <Enumeration label="Restart"  value="0x17FF" shortDescription="" />
+        </EnumerationList>
+      </EnumeratedDataType>
 
       <ContainerDataType name="SetParam_CmdPayload" shortDescription="Example command payload">
         <EntryList>
-          <Entry name="Param" type="SetParam_Mode" shortDescription="" />
+          <Entry name="Param_OBDH" type="SetParam_Mode_OBDH" shortDescription="" />
+          <Entry name="Param_Payload" type="SetParam_Mode_Payload" shortDescription="" />
         </EntryList>
       </ContainerDataType>
 

@@ -26,7 +26,9 @@ int main() {
     stateDef        state = init;
     statusErrDef    ret = noError;
     int             retryCounter = 0;
+    int             counter = 0;
     uint16_t        mainStateTCTemp = 0xFFFF;
+    struct timespec mainSleep = {0, MAIN_LOOP_TIME};
 
     while (state != ending) {
         switch (state) {
@@ -172,6 +174,7 @@ int main() {
             state = controlMode;
             break;
         case controlMode: // Control subsystems (sensor acquisition, telemetry to/TC from TT&C)
+            printf("counter : %d \n",counter);
             ret = checkSensors();
             if (ret == noError)
                 printf("Sensor check OK\n");
@@ -197,8 +200,8 @@ int main() {
                 printf("Error check TC backlog! 0x%04X \n", ret);
                 sendTelemToTTC(ret);
             }
-
-            sleep(MAIN_LOOP_TIME);
+            counter++;
+            nanosleep(&mainSleep, NULL);
             break;
         case regulate: // Regulate subsystems when sensor out of bounds
             ret = regulateSubsystems();

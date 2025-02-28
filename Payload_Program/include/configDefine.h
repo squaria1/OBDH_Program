@@ -14,9 +14,9 @@
 #define CONFIGDEFINE_H
 
 /**
- * \brief State machine main loop delay in seconds.
+ * \brief State machine main loop delay in nanoseconds.
  */
-#define MAIN_LOOP_TIME 1
+#define MAIN_LOOP_TIME 10000000L
 
 /**
  * \brief delay between each initialisation or freeing
