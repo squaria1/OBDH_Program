@@ -1,6 +1,6 @@
 Description
 -----------
-Cranfield University, 2025 NB-IoT satellite constellation Group Design Project (GDP), 
+Cranfield University, 2025 NB-IoT satellite constellation Group Design Project (GDP),<br />
 On Board Data Handling (OBDH) program, Telemetry, Tracking, and Command (TT&C) basecamp cFS application and payload program, Electrical Power System (EPS) board KiCad project.
 
 
@@ -10,7 +10,7 @@ The EPS board is made from the fusion of two existing open source projects from 
 * The MPPT: https://github.com/LibreSolar/mppt-2420-hc
 * The BMS: https://github.com/LibreSolar/bms-8s50-ic
 
-See https://learn.libre.solar/ for the documentation and schematic explanation.
+See https://learn.libre.solar/ for the documentation and schematic explanation.<br />
 
 Notable changes from the two source projects are:
 * Complete board rerouting
@@ -99,7 +99,7 @@ Then open html/index.html with a web browser.
 
 cFS basecamp TT&C application installation
 ------------------------------------------
-Follow cFS basecamp installation instructions on https://github.com/cfs-tools/cfs-basecamp,
+Follow cFS basecamp installation instructions on https://github.com/cfs-tools/cfs-basecamp,<br />
 
 Run the basecamp GUI with (where env/ and cfs-basecamp/ directories are located),
 ```
@@ -109,23 +109,23 @@ cd cfs-basecamp/gnd-sys/app/
 python3 basecamp.py
 ```
 
-Create the hi_world tutorial application with the basecamp GUI,
+Create the hi_world tutorial application with the basecamp GUI,<br />
 File-->Create user app-->Toggle Hello World-->Create App
 
-Add the hi_world app to the cFS build configuration,
+Add the hi_world app to the cFS build configuration,<br />
 File-->Add User App to Target-->Select "hi_world" in the dropdown-->Click on "Auto"-->Close window
 
 Replace,
 ```
 "APP_CMD_PIPE_DEPTH": 5
 ```
-In "cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_hi_world_ini.json"
+In "cfs-basecamp/cfe-eds-framework/basecamp_defs/cpu1_hi_world_ini.json"<br />
 By,
 ```
 "APP_CMD_PIPE_MAX": 7
 ```
 
-Close basecamp,
+Close basecamp,<br />
 File-->Exit
 
 Remove generated basecamp hi_world/ and copy hi_world/ from the git to the basecamp installation,
@@ -139,16 +139,16 @@ Start basecamp again,
 python3 basecamp.py
 ```
 
-Build the application,
+Build the application,<br />
 Click on "Build New"
 
 
 
-Start the application,
+Start the application,<br />
 Click on "Start"
 
-Send telecommands (TCs) to the OBDH Program or payload Program (send to the OBDH and rerouted to the payload program through the CAN bus),
+Send telecommands (TCs) to the OBDH Program or payload Program (send to the OBDH and rerouted to the payload program through the CAN bus),<br />
 "Send Cmd" dropdown-->Select HI_WORLD/Application/CMD-->Select "SetParam" in the dropdown-->Select main state to change (only one at a time)
 
-Show recieved telemetry (TM),
+Show recieved telemetry (TM),<br />
 "View Tlm" dropdown-->Select HI_WORLD/Application/STATUS_TLM
