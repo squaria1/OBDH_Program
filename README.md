@@ -31,7 +31,7 @@ OBDH program installation
 -------------------------
 Build the OBDH program,
 ```
-cd OBDH_Program
+cd ~/OBDH_Program
 mkdir build
 cd build
 cmake -S ../ -B .
@@ -55,8 +55,7 @@ Payload program installation
 ----------------------------
 Build the Payload program,
 ```
-cd ~
-cd OBDH_Program/Payload_Program
+cd ~/OBDH_Program/Payload_Program
 mkdir build
 cd build
 cmake -S ../ -B .
