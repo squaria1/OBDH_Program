@@ -1,7 +1,8 @@
 Description
 -----------
 Cranfield University, 2025 NB-IoT satellite constellation Group Design Project (GDP), 
-On Board Data Handling (OBDH) program, Telemetry, Tracking, and Command (TT&C) basecamp cFS application and payload program.
+On Board Data Handling (OBDH) program, Telemetry, Tracking, and Command (TT&C) basecamp cFS application and payload program, Electrical Power System (EPS) board KiCad project.
+
 
 Requirements
 ------------
@@ -10,9 +11,11 @@ Requirements
 * git
 * linux environnement (or VM, WSL)
 
+
 Optional
 --------
 * Doxygen (for documentation generation)
+
 
 Common installation
 -------------------
@@ -26,6 +29,7 @@ Clone from the github repository,
 cd ~
 git clone https://github.com/squaria1/OBDH_Program.git
 ```
+
 
 OBDH program installation
 -------------------------
@@ -51,6 +55,7 @@ doxygen Doxyfile
 
 Then open html/index.html with a web browser.
 
+
 Payload program installation
 ----------------------------
 Build the Payload program,
@@ -74,6 +79,7 @@ doxygen Doxyfile
 ```
 
 Then open html/index.html with a web browser.
+
 
 cFS basecamp TT&C application installation
 ------------------------------------------
@@ -120,8 +126,26 @@ python3 basecamp.py
 Build the application,
 Click on "Build New"
 
+
+
 Start the application,
 Click on "Start"
 
 Send TM to the OBDH Program or payload Program (send to the OBDH and rerouted to the payload program through the CAN bus),
 "Send Cmd" dropdown-->Select HI_WORLD/Application/CMD-->Select "SetParam" in the dropdown-->Select main state to change (only one at a time)
+
+
+EPS board KiCad project
+-----------------------
+The EPS board is made from the fusion of two existing open source projects from https://libre.solar/:
+* The MPPT: https://github.com/LibreSolar/mppt-2420-hc
+* The BMS: https://github.com/LibreSolar/bms-8s50-ic
+
+See https://learn.libre.solar/ for the documentation and schematic explanation.
+
+Notable changes from the two source projects are:
+* Complete board rerouting
+* Add fuse to MPPT input
+* Changed DC-DC 12V circuit
+* BMS output into MPPT battery input
+* Separate BMS and MPPT ground planes
