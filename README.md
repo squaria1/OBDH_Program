@@ -4,7 +4,23 @@ Cranfield University, 2025 NB-IoT satellite constellation Group Design Project (
 On Board Data Handling (OBDH) program, Telemetry, Tracking, and Command (TT&C) basecamp cFS application and payload program, Electrical Power System (EPS) board KiCad project.
 
 
-Requirements
+EPS board KiCad project
+-----------------------
+The EPS board is made from the fusion of two existing open source projects from https://libre.solar/:
+* The MPPT: https://github.com/LibreSolar/mppt-2420-hc
+* The BMS: https://github.com/LibreSolar/bms-8s50-ic
+
+See https://learn.libre.solar/ for the documentation and schematic explanation.
+
+Notable changes from the two source projects are:
+* Complete board rerouting
+* Add fuse to MPPT input
+* Changed DC-DC 12V circuit
+* BMS output into MPPT battery input
+* Separate BMS and MPPT ground planes
+
+
+OBDH and payload programs requirements
 ------------
 * cmake (>v3.10)
 * g++
@@ -133,19 +149,3 @@ Click on "Start"
 
 Send TM to the OBDH Program or payload Program (send to the OBDH and rerouted to the payload program through the CAN bus),
 "Send Cmd" dropdown-->Select HI_WORLD/Application/CMD-->Select "SetParam" in the dropdown-->Select main state to change (only one at a time)
-
-
-EPS board KiCad project
------------------------
-The EPS board is made from the fusion of two existing open source projects from https://libre.solar/:
-* The MPPT: https://github.com/LibreSolar/mppt-2420-hc
-* The BMS: https://github.com/LibreSolar/bms-8s50-ic
-
-See https://learn.libre.solar/ for the documentation and schematic explanation.
-
-Notable changes from the two source projects are:
-* Complete board rerouting
-* Add fuse to MPPT input
-* Changed DC-DC 12V circuit
-* BMS output into MPPT battery input
-* Separate BMS and MPPT ground planes
