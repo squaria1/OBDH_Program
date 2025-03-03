@@ -147,5 +147,8 @@ Click on "Build New"
 Start the application,
 Click on "Start"
 
-Send TM to the OBDH Program or payload Program (send to the OBDH and rerouted to the payload program through the CAN bus),
+Send telecommands (TCs) to the OBDH Program or payload Program (send to the OBDH and rerouted to the payload program through the CAN bus),
 "Send Cmd" dropdown-->Select HI_WORLD/Application/CMD-->Select "SetParam" in the dropdown-->Select main state to change (only one at a time)
+
+Show recieved telemetry (TM),
+"View Tlm" dropdown-->Select HI_WORLD/Application/STATUS_TLM
