@@ -18,6 +18,9 @@
 #include "configDefine.h"
 #include "statesDefine.h"
 
+//------------------------------------------------------------------------------
+// Global function definitions
+//------------------------------------------------------------------------------
 statusErrDef regulateSubsystems();
 
 #endif

@@ -10,6 +10,17 @@
  */
 #include "init.h"
 
+
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
+statusErrDef initSensorParamCSV();
+int countFileLines(const char *filename);
+statusErrDef readParamSensorsFile(const char* fileName);
+void fillParamSensorsStruct(char* line, int pos);
+statusErrDef initCANSocket();
+statusErrDef initUDPSocket();
+
 /**
  * \struct paramSensors
  * \brief struct containing the parameters of each sensors
@@ -67,7 +78,7 @@ statusErrDef initSensorParamCSV() {
  * \brief function to count the number of lines
  * in the paraSensors.csv file.
  *
- * \param fileName location and name of the CSV file to read
+ * \param filename location and name of the CSV file to read
  *
  * \return the line count.
  */

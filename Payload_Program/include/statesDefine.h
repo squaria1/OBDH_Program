@@ -16,6 +16,9 @@
 #include <unordered_set>
 #include <stdint.h>
 
+//------------------------------------------------------------------------------
+// Global enumeration definitions
+//------------------------------------------------------------------------------
  /**
   * \enum statusErrDef
   * \brief the program status and error codes

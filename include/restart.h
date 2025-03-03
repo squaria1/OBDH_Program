@@ -27,8 +27,9 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-statusErrDef closeCANSocket();
-statusErrDef closeUDPSocket();
+//------------------------------------------------------------------------------
+// Global function definitions
+//------------------------------------------------------------------------------
 statusErrDef freeOBDH();
 statusErrDef freeAOCS();
 statusErrDef freeTTC();

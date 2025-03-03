@@ -310,7 +310,7 @@ public:
 
 public:
 	/** Sets Packet Type.
-	 * @param[in] packetType.
+	 * @param[in] packetType packet type
 	 * @attention packetType==0:Command packet.
 	 * @attention packetType==1:Telemetry Packet.
 	 */
@@ -356,7 +356,7 @@ public:
 
 public:
 	/** Sets Packet Sequence Count.
-	 * @paarm[in] sequenceCount Packet Sequence Count.
+	 * @param[in] sequenceCount Packet Sequence Count.
 	 */
 	inline void setSequenceCount(std::bitset<14> sequenceCount) {
 		this->sequenceCount = sequenceCount;
@@ -364,7 +364,7 @@ public:
 
 public:
 	/** Sets Packet Sequence Count.
-	 * @paarm[in] sequenceCount Packet Sequence Count.
+	 * @param[in] sequenceCount Packet Sequence Count.
 	 */
 	inline void setSequenceCount(size_t sequenceCount) {
 		this->sequenceCount = std::bitset<14>(sequenceCount);
@@ -372,7 +372,7 @@ public:
 
 public:
 	/** Sets Packet Sequence Flag.
-	 * @paarm[in] sequenceFlag Packet Sequence Flag.
+	 * @param[in] sequenceFlag Packet Sequence Flag.
 	 */
 	inline void setSequenceFlag(std::bitset<2> sequenceFlag) {
 		this->sequenceFlag = sequenceFlag;
@@ -380,10 +380,10 @@ public:
 
 public:
 	/** Sets Packet Sequence Flag.
-	 * @paarm[in] sequenceFlag Packet Sequence Flag.
+	 * @param[in] sequenceFlag Packet Sequence Flag.
 	 */
-	inline void setSequenceFlag(uint32_t sequeceFlag) {
-		this->sequenceFlag = std::bitset<2>(sequeceFlag);
+	inline void setSequenceFlag(uint32_t sequenceFlag) {
+		this->sequenceFlag = std::bitset<2>(sequenceFlag);
 	}
 
 public:

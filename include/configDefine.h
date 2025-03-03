@@ -10,9 +10,65 @@
  * at runtime.
  */
 
+/** @mainpage OBDH Program documentation
+ * @section intro Introduction
+ * <a href="https://github.com/squaria1/OBDH_Program">
+ * the OBDH Program Github repository</a>,
+ *
+ * @section install Installation and Build
+ * @subsection OBDH program requirements
+ *
+ * - cmake (>v3.10)
+ * - g++
+ * - git
+ * - linux environnement (or VM, WSL)
+ *
+ *
+ * @subsection Optional Optional
+ * - Doxygen (for documentation generation)
+ *
+ * @subsection Packages Packages installation
+ * Install required packages,
+ * @code
+ * sudo apt install cmake build-essential doxygen git
+ * @endcode
+ *
+ * Clone from the github repository,
+ * @code
+ * cd ~
+ * git clone https://github.com/squaria1/OBDH_Program.git
+ * @endcode
+ *
+ * @subsection Build Build
+ * @code
+ * cd ~/OBDH_Program
+ * mkdir build
+ * cd build
+ * cmake -S ../ -B .
+ * make
+ * @endcode
+ *
+ * Run the OBDH program,
+ * @code
+ * sudo ./OBDH_Program
+ * @endcode
+ *
+ * (Optional) Generate OBDH program documentation with Doxygen,
+ * @code
+ * cd ../../doc
+ * doxygen Doxyfile
+ * @endcode
+ *
+ * Then open html/index.html with a web browser.
+ *
+ */
+
 #ifndef CONFIGDEFINE_H
 #define CONFIGDEFINE_H
 
+//------------------------------------------------------------------------------
+// Global define program parameters (change as you wish)
+//------------------------------------------------------------------------------
 /**
  * \brief State machine main loop delay in nanoseconds.
  */

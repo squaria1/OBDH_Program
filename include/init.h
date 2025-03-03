@@ -31,12 +31,9 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-statusErrDef initSensorParamCSV();
-int countFileLines(const char *filename);
-statusErrDef readParamSensorsFile(const char* fileName);
-void fillParamSensorsStruct(char* line, int pos);
-statusErrDef initCANSocket();
-statusErrDef initUDPSocket();
+//------------------------------------------------------------------------------
+// Global function definitions
+//------------------------------------------------------------------------------
 statusErrDef initOBDH();
 statusErrDef initAOCS();
 statusErrDef initTTC();
@@ -45,6 +42,9 @@ statusErrDef initIntersat();
 statusErrDef initEPS();
 statusErrDef initPPU();
 
+//------------------------------------------------------------------------------
+// Global structure definitions
+//------------------------------------------------------------------------------
 /**
  * \struct paramSensorsStruct
  * \brief struct containing values taken from "paramSensors.csv"

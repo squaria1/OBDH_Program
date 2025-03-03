@@ -1,0 +1,242 @@
+(footprint "Keystone-Fuse-3557-2"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(tags "KEYSTONE, FUSE, ATO, ATC, HOLDER 3557-2")
+	(property "Reference" "XF1"
+		(at -3 4.8 0)
+		(layer "F.SilkS")
+		(uuid "eba97efc-08a3-4c43-9ace-2f4ee3782742")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+			(justify top)
+		)
+	)
+	(property "Value" "Fuse_Holder"
+		(at 0 4.2 180)
+		(layer "F.Fab")
+		(uuid "95744608-9841-4744-a8d6-fb320608be6c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+			(justify top)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "80af4cbc-bcfe-4a10-ae27-ca5901ddf8fc")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "cb114596-1d85-46a3-adc4-c57caa0f243d")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "df91ca9a-15b6-4ec9-9b1b-c1fabfa47c58")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -9.905 -3.365)
+		(end 9.905 -3.365)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "f39a9056-87d9-4163-8432-0d9a218f0ba3")
+	)
+	(fp_line
+		(start -9.905 3.365)
+		(end -9.905 -3.365)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "c81ffcfb-b8a0-4eee-a475-c93fb1e43183")
+	)
+	(fp_line
+		(start 9.905 -3.365)
+		(end 9.905 3.365)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "4d2892ca-a4fd-4f69-bdf0-66c7f43ed1cb")
+	)
+	(fp_line
+		(start 9.905 3.365)
+		(end -9.905 3.365)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "31e8c1e7-9e22-479f-977c-890888af8f61")
+	)
+	(fp_line
+		(start -10 -3.5)
+		(end 10 -3.5)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "2725a8d2-9d18-4943-9a50-69292539cc86")
+	)
+	(fp_line
+		(start -10 3.5)
+		(end -10 -3.5)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "27490fd3-88c2-4dd8-9169-bb2c3ad95a57")
+	)
+	(fp_line
+		(start 10 -3.5)
+		(end 10 3.5)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "77dd9764-8b1b-458f-809e-323e6b656317")
+	)
+	(fp_line
+		(start 10 3.5)
+		(end -10 3.5)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "40c8c819-dfdb-4f15-a162-5aa7ead81fee")
+	)
+	(fp_line
+		(start -9.8 -3.4)
+		(end 9.8 -3.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "d41cf8d4-b81b-4a14-a9c4-91d783b7dcb8")
+	)
+	(fp_line
+		(start -9.8 3.4)
+		(end -9.8 -3.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "3883fa19-76d1-432f-8b62-b391c5efb181")
+	)
+	(fp_line
+		(start 9.8 -3.4)
+		(end 9.8 3.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "410d7fb7-0d90-4098-ba41-10c4e68dbf1e")
+	)
+	(fp_line
+		(start 9.8 3.4)
+		(end -9.8 3.4)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "507e958f-ce7b-402e-8413-7b64099a8313")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 180)
+		(layer "F.Fab")
+		(uuid "a5c7be67-b822-45c1-88fe-5f31801d3b6e")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole circle
+		(at -6.735 -1.7 90)
+		(size 2.8 2.8)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "9d67b4f3-0bec-458f-aa01-96ddad19086d")
+	)
+	(pad "1" thru_hole circle
+		(at -6.735 1.7 90)
+		(size 2.8 2.8)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "c3abaa8e-c01d-418d-9a12-e7753a57db49")
+	)
+	(pad "2" thru_hole circle
+		(at 6.735 -1.7 90)
+		(size 2.8 2.8)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "cbc46fcd-93c9-43ff-8cdf-1336719f66c0")
+	)
+	(pad "2" thru_hole circle
+		(at 6.735 1.7 90)
+		(size 2.8 2.8)
+		(drill 1.6)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "4acf725f-b860-4d82-930e-931b10d36698")
+	)
+	(model "${KISYS3DMOD}/LibreSolar.3dshapes/Keystone-3557-2_fuse.stp"
+		(offset
+			(xyz 0 -0.2999999955 3.29999995)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 0 0)
+		)
+	)
+)

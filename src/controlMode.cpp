@@ -11,7 +11,24 @@
 #include "controlMode.h"
 #include "init.h"
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
+std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
+statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue);
+statusErrDef recieveTelemFromSubsystems();
+statusErrDef recieveTCFromTTC();
+void DumpUDPData(uint8_t *data, ssize_t length);
+
+/**
+ * \brief the test sensor value increment.
+ */
 uint8_t counter = 0;
+
+/**
+ * \brief The main state recieved through a telecommand
+ * from the TT&C subsystem.
+ */
 uint16_t mainStateTC = 0xFFFF;
 
 /**
@@ -162,6 +179,12 @@ statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> se
 	return ret;
 }
 
+/**
+ * \brief function show every byte of the input frame
+ *
+ * \param data the frame raw bytes pointer
+ * \param length the frame length
+ */
 void DumpUDPData(uint8_t *data, ssize_t length) {
     printf("Received %zd bytes of data:\n", length);
 
@@ -280,6 +303,9 @@ statusErrDef recieveTelemFromSubsystems() {
  *
  * \param TCOut the telecommands to transmit to a CAN frame to
  * the payload subsystem, cut in a vector of bytes.
+ *
+ * \param subsystem the spacecraft subsystem selected in the
+ * enumeration.
  *
  * \return statusErrDef that values:
  * - errCCSDSPacketTooLarge when the CCSDS packet is too large for the CAN FD frame (64 Bytes),

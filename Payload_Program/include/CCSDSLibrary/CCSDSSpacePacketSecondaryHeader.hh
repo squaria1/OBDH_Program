@@ -282,7 +282,7 @@ public:
 
 public:
 	/** Sets the Category field.
-	 * @param[in] 7-bit category field value.
+	 * @param[in] category 7-bit category field value.
 	 */
 	void setCategory(std::bitset<7> category) {
 		this->category = category;
@@ -290,7 +290,7 @@ public:
 
 public:
 	/** Sets the Category field.
-	 * @param[in] 7-bit category field value.
+	 * @param[in] category 7-bit category field value.
 	 */
 	void setCategory(uint8_t category) {
 		this->category = std::bitset<7>(category);

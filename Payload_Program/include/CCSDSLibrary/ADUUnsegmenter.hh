@@ -376,7 +376,7 @@ public:
 	 * Note: This method makes a copy of the input CCSDSSpacePacket instance,
 	 * and pushes to a vector for unsegmentation. Deletion of the input
 	 * CCSDSSpacePacket instance should be taken care outside this method.
-	 * @param[in] ccsdsSpacePacketByteArray a CCSDS SpacePacket that contains an ADU segment
+	 * @param[in] ccsdsSpacePacket a CCSDS SpacePacket that contains an ADU segment
 	 */
 	void push(CCSDSSpacePacket* ccsdsSpacePacket) throw (ADUUnsegmenterException) {
 		if (ccsdsSpacePacket->isTCPacket()) {
