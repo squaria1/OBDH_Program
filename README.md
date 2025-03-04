@@ -18,6 +18,9 @@ Notable changes from the two source projects are:
 * Changed DC-DC 12V circuit
 * BMS output into MPPT battery input
 * Separate BMS and MPPT ground planes
+* CAN connectors from RJ-45 to DB9
+* Only one DB9 connector for both MPPT and BMS
+* Battery charging connector from Molex to JST-XH 8 pos (for a 7S LiPo battery)
 
 
 OBDH and payload programs requirements
