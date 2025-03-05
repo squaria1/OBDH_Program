@@ -12,6 +12,9 @@
 #include "controlMode.h"
 #include "init.h"
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
 /**
  * \brief function to trigger regulation procedures
  * in the spacecraft sensor(s) location(s).

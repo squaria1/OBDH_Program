@@ -11,6 +11,9 @@
 
 #include "processNav.h"
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
 /**
  * \brief function to calculate the user position
  * from the doppler shift.

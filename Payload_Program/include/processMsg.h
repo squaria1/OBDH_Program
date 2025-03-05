@@ -31,9 +31,5 @@ statusErrDef aStarPathAlgorithm();
 statusErrDef transmitToGS();
 statusErrDef transmitToIntersat(std::vector<uint8_t> packet);
 
-//------------------------------------------------------------------------------
-// global vars
-//------------------------------------------------------------------------------
-
 #endif
 

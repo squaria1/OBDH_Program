@@ -27,7 +27,6 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-statusErrDef closeCANSocket();
 statusErrDef freeOBDH();
 statusErrDef freePayload();
 statusErrDef freeIntersat();

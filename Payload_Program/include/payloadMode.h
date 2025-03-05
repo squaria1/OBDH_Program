@@ -29,9 +29,7 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
 statusErrDef sendTelemToOBDH(const statusErrDef statusErr);
-statusErrDef recieveTCFromOBDH();
 statusErrDef checkTC();
 statusErrDef recieve5GPackets();
 statusErrDef recieveNavReq();

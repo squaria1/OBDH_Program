@@ -20,6 +20,9 @@ statusErrDef recieveTelemFromSubsystems();
 statusErrDef recieveTCFromTTC();
 void DumpUDPData(uint8_t *data, ssize_t length);
 
+//------------------------------------------------------------------------------
+// Global vars initialisation
+//------------------------------------------------------------------------------
 /**
  * \brief the test sensor value increment.
  */
@@ -31,6 +34,9 @@ uint8_t counter = 0;
  */
 uint16_t mainStateTC = 0xFFFF;
 
+//------------------------------------------------------------------------------
+// State functions
+//------------------------------------------------------------------------------
 /**
  * \brief function to generate a CCSDS packet wrapping user data
  *

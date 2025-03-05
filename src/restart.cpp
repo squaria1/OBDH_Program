@@ -17,6 +17,9 @@
 statusErrDef closeCANSocket();
 statusErrDef closeUDPSocket();
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
 /**
  * \brief function to close the CAN socket
  *

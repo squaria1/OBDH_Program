@@ -44,6 +44,9 @@ int socket_udp = 0;
  */
 int lineCountSensorParamCSV = 0;
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
 /**
  * \brief function to read "paramSensors.csv"
  * until the end of the file.

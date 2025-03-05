@@ -12,6 +12,9 @@
 #include "controlMode.h"
 #include "init.h"
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
 /**
  * \brief function to send the safe mode state
  * to every subsystems.

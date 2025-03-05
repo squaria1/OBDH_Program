@@ -11,7 +11,22 @@
 #include "payloadMode.h"
 #include "init.h"
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
+std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
+statusErrDef recieveTCFromOBDH();
+
+//------------------------------------------------------------------------------
+// Global vars initialisation
+//------------------------------------------------------------------------------
+/**
+ * \brief Determine if low power is activated or not.
+ */
 uint8_t counter = 0;
+/**
+ * \brief Determine if low power is activated or not.
+ */
 uint16_t mainStateTC = 0xFFFF;
 
 /**
@@ -23,6 +38,9 @@ struct timespec beginMsgTimer;
  */
 struct timespec endMsgTimer;
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
 /**
  * \brief function to send telemetry to the TT&C subsystem
  *

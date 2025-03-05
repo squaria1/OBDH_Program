@@ -12,8 +12,20 @@
 #include "processMsg.h"
 #include "init.h"
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
+/**
+ * \brief function to check if a ground station
+ * is currently connected to the spacecraft.
+ *
+ * \return statusErrDef that values:
+ * - noError when the function exits successfully.
+ */
 statusErrDef checkGSConnected() {
 	statusErrDef ret = noError;
+
+    //TODO
 
     return ret;
 }

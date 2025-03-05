@@ -11,6 +11,22 @@
 #include "init.h"
 #include "restart.h"
 
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
+statusErrDef closeCANSocket();
+statusErrDef closeUDPSocket();
+
+//------------------------------------------------------------------------------
+// Local function definitions
+//------------------------------------------------------------------------------
+/**
+ * \brief function to close the CAN socket
+ *
+ * \return statusErrDef that values:
+ * - errCloseCANSocket when the CAN socket can't be closed
+ * - noError when the function exits successfully.
+ */
 statusErrDef closeCANSocket() {
 	statusErrDef ret = noError;
 	if (close(socket_can) < 0) {
@@ -20,7 +36,13 @@ statusErrDef closeCANSocket() {
 	return ret;
 }
 
-
+/**
+ * \brief function to close the UDP socket
+ *
+ * \return statusErrDef that values:
+ * - errCloseUDPSocket when the UDP socket can't be closed
+ * - noError when the function exits successfully.
+ */
 statusErrDef closeUDPSocket() {
 	statusErrDef ret = noError;
 	if (close(socket_udp) < 0) {

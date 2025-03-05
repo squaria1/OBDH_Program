@@ -15,6 +15,9 @@
  * <a href="https://github.com/squaria1/OBDH_Program">
  * the OBDH Program Github repository</a>,
  *
+ * You can find documentation on every C functions, vars, enum and struct in:<br>
+ * Files-->file list-->then click on .cpp or .h file to open the documentation of this file.
+ *
  * @section install Installation and Build
  * @subsection OBDH program requirements
  *
@@ -83,7 +86,7 @@
 /**
  * \brief CAN device name in the Linux device management system.
  */
-#define CAN_INTERFACE "vcan0"
+#define CAN_INTERFACE "can0"
 
 /**
  * \brief CAN socket buffer size in bytes
