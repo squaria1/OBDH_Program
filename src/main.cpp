@@ -26,7 +26,6 @@ int main() {
     stateDef        state = init;
     statusErrDef    ret = noError;
     int             retryCounter = 0;
-    int             counter = 0;
     uint16_t        mainStateTCTemp = 0xFFFF;
     struct timespec mainSleep = {0, MAIN_LOOP_TIME};
 
@@ -174,10 +173,10 @@ int main() {
             state = controlMode;
             break;
         case controlMode: // Control subsystems (sensor acquisition, telemetry to/TC from TT&C)
-            printf("counter : %d \n",counter);
             ret = checkSensors();
-            if (ret == noError)
-                printf("Sensor check OK\n");
+            if (ret == noError) {
+                //printf("Sensor check OK\n");
+            }
             else if (ret == errSensorWarningValue) {
                 printf("State has been changed to regulate state! 0x%04X \n", ret);
                 sendTelemToTTC(infoStateToRegulate);
@@ -194,13 +193,13 @@ int main() {
             }
 
             ret = checkTC();
-            if (ret == noError)
-                printf("check TC backlog OK\n");
+            if (ret == noError) {
+                //printf("check TC backlog OK\n");
+            }
             else {
                 printf("Error check TC backlog! 0x%04X \n", ret);
                 sendTelemToTTC(ret);
             }
-            counter++;
             nanosleep(&mainSleep, NULL);
             break;
         case regulate: // Regulate subsystems when sensor out of bounds

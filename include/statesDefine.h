@@ -43,6 +43,7 @@ typedef enum
 	infoBroadcastSafeModeSuccess = 0x0021,	/**< The safe mode has been sent to all subsystems. */
 
 	// Control mode (from 0x0040 to 0x005F)
+	infoNoDataInCANBuffer = 0x0040,			/**< No data has been recieved through the CAN bus from the subsystems. */
 
 	// Restart (from 0x00E0 to 0x00FF)
 	infoFreePPUSuccess = 0x00E0,			/**< PPU (propulsion system Power Processing Unit) subsystem memory freeing has succeeded. */
@@ -62,7 +63,8 @@ typedef enum
 
 	/*=============ERROR===============*/
 	// Init (from 0x0E00 to 0x0E1F)
-	errCreateCANSocket = 0x0E01,			/**< CAN socket creation failed. */
+	errCreateCANSocket = 0x0E00,			/**< CAN socket creation failed. */
+	errEnableCANFD = 0x0E01,				/**< enable CAN FD mode failed. */
 	errSetCANSocketBufSize = 0x0E02,		/**< Set CAN socket buffer size failed. */
 	errGetCANSocketFlags = 0x0E03,			/**< Get CAN socket flags failed. */
 	errSetCANSocketNonBlocking = 0x0E04,	/**< Set CAN socket to non-blocking (doesn't wait for an incoming frame to continue). */

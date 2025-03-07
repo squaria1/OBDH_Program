@@ -103,7 +103,8 @@
 #define CFG_APP_CMD_PIPE_MAX    APP_CMD_PIPE_MAX
 
 #define CFG_HI_WORLD_CMD_TOPICID          HI_WORLD_CMD_TOPICID
-#define CFG_HI_WORLD_SEND_STATUS_TOPICID  BC_SCH_4_SEC_TOPICID           // Use different CFG_ name instead of BC_SCH_4_SEC_TOPICID to localize impact if rate changes 
+#define CFG_HI_WORLD_SEND_STATUS_TOPICID  BC_SCH_1_HZ_TOPICID           // Use different CFG_ name instead of BC_SCH_4_SEC_TOPICID to localize impact if rate changes 
+#define CFG_APP_C_DEMO_EXE_TOPICID        BC_SCH_1_HZ_TOPICID
 #define CFG_HI_WORLD_STATUS_TLM_TOPICID   HI_WORLD_STATUS_TLM_TOPICID
 
 
@@ -113,7 +114,7 @@
    XX(APP_CMD_PIPE_NAME,char*) \
    XX(APP_CMD_PIPE_MAX,uint32) \
    XX(HI_WORLD_CMD_TOPICID,uint32) \
-   XX(BC_SCH_4_SEC_TOPICID,uint32) \
+   XX(BC_SCH_1_HZ_TOPICID,uint32) \
    XX(HI_WORLD_STATUS_TLM_TOPICID,uint32) \
 
 DECLARE_ENUM(Config,APP_CONFIG)

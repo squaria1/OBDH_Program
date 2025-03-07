@@ -53,7 +53,7 @@
  *
  * Run the Payload program,
  * @code
- * sudo ./OBDH_Program
+ * sudo ./Payload_Program
  * @endcode
  *
  * (Optional) Generate Payload program documentation with Doxygen,
@@ -86,7 +86,18 @@
 /**
  * \brief CAN device name in the Linux device management system.
  */
-#define CAN_INTERFACE "can0"
+#define CAN_INTERFACE "vcan0"
+
+/**
+ * \brief Boolean true (1) when vcan0 instead of can0
+ * otherwise false (0).
+ */
+#define USE_VCAN 1
+
+/**
+ * \brief CAN interface system command maximum length
+ */
+#define CAN_CMD_LENGHT 256
 
 /**
  * \brief CAN socket buffer size in bytes
@@ -115,7 +126,7 @@
  * CCSDS primary and secondary headers
  * (64 Bytes maximum for a CAN FD frame).
  */
-#define DATA_OUT_CAN_MAX_LENGTH 48
+#define DATA_OUT_CAN_MAX_LENGTH 64
 
 /**
  * \brief Number of initialisation or freeing error retries.
@@ -126,12 +137,12 @@
  * \brief When a 5G packet has not been recieved after
  * MSG_TIMEOUT seconds.
  */
-constexpr double MSG_TIMEOUT = 20.5;
+constexpr double MSG_TIMEOUT = 60;
 
 /**
  * \brief Intersat UDP IP local address
  */
-#define INTERSAT_IP_ADDRESS "192.168.1.3"
+#define INTERSAT_IP_ADDRESS "192.168.10.5"
 
 /**
  * \brief UDP port from payload to the

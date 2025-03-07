@@ -46,13 +46,14 @@ typedef enum
 	// Process msg (from 0x1060 to 0x107F)
 	infoDirectPathToGS = 0x1060,			/**< The 5G packet recieved can be transmitted directly to the ground station. */
 	infoPathToNextNode = 0x1061,			/**< The 5G packet recieved has to be transfered to another constellation satellite (node). */
+	infoNoDataInCANBuffer = 0x1062,			/**< No data has been recieved through the CAN bus from the OBDH subsystem. */
 
 	// Idle mode (from 0x1080 to 0x109F)
 
 	// Process nav (from 0x10A0 to 0x10BF)
 
 	// Restart (from 0x10E0 to 0x10FF)
-	infoFreeIntersatSuccess = 0x00E0,		/**< Intersatellite comms subsystem memory freeing has succeeded. */
+	infoFreeIntersatSuccess = 0x10E0,		/**< Intersatellite comms subsystem memory freeing has succeeded. */
 	infoFreeOBDHSuccess = 0x10E1,			/**< OBDH subsystem memory freeing has succeeded. */
 	infoFreePayloadSuccess = 0x10E2,		/**< Payload subsystem memory freeing has succeeded.  */
 
@@ -67,24 +68,25 @@ typedef enum
 	/*=============ERROR===============*/
 	// Init (from 0x1E00 to 0x1E1F)
 	errCreateCANSocket = 0x1E00,			/**< CAN socket creation failed. */
-	errSetCANSocketBufSize = 0x1E01,		/**< Set CAN socket buffer size failed. */
-	errGetCANSocketFlags = 0x1E02,			/**< Get CAN socket flags failed. */
-	errSetCANSocketNonBlocking = 0x1E03,	/**< Set CAN socket to non-blocking (doesn't wait for an incoming frame to continue). */
-	errBindCANAddr = 0x1E04,				/**< Bind CAN address to the CAN socket failed. */
-	errCreateUDPSocket = 0x1E05,			/**< UDP socket creation failed. */
-	errSetUDPSocketBufSize = 0x1E06,		/**< Set UDP socket buffer size failed. */
-	errGetUDPSocketFlags = 0x1E07,			/**< Get UDP socket flags failed. */
-	errSetUDPSocketNonBlocking = 0x1E08,	/**< Set UDP socket to non-blocking (doesn't wait for an incoming frame to continue). */
-	errBindUDPAddr = 0x1E09,				/**< Bind UDP address to the UDP socket failed. */
-	errAllocParamSensorStruct = 0x1E0A,		/**< paramSensors structure memory allocation failed. */
-	errOpenParamSensorsFile = 0x1E0B,		/**< paramSensors.csv file not found or unable to read. */
+	errEnableCANFD = 0x1E01,				/**< enable CAN FD mode failed. */
+	errSetCANSocketBufSize = 0x1E02,		/**< Set CAN socket buffer size failed. */
+	errGetCANSocketFlags = 0x1E03,			/**< Get CAN socket flags failed. */
+	errSetCANSocketNonBlocking = 0x1E04,	/**< Set CAN socket to non-blocking (doesn't wait for an incoming frame to continue). */
+	errBindCANAddr = 0x1E05,				/**< Bind CAN address to the CAN socket failed. */
+	errCreateUDPSocket = 0x1E06,			/**< UDP socket creation failed. */
+	errSetUDPSocketBufSize = 0x1E07,		/**< Set UDP socket buffer size failed. */
+	errGetUDPSocketFlags = 0x1E08,			/**< Get UDP socket flags failed. */
+	errSetUDPSocketNonBlocking = 0x1E09,	/**< Set UDP socket to non-blocking (doesn't wait for an incoming frame to continue). */
+	errBindUDPAddr = 0x1E0A,				/**< Bind UDP address to the UDP socket failed. */
+	errAllocParamSensorStruct = 0x1E0B,		/**< paramSensors structure memory allocation failed. */
+	errOpenParamSensorsFile = 0x1E0C,		/**< paramSensors.csv file not found or unable to read. */
 
 	// Safe mode (from 0x1E20 to 0x1E3F)
 
 	// Control mode (from 0x1E40 to 0x1E5F)
 	errReadCANPayload = 0x1E20,				/**< Read CAN bus payload subsystem telemetry failed. */
 	errWriteCANPayload = 0x1E21,			/**< Write payload subsystem TCs to the CAN bus failed. */
-	errReadCANEPS = 0x1E22,					/**< Read CAN bus EPS subsystem telemetry failed. */
+	errReadCANTC = 0x1E22,					/**< Read CAN bus OBDH subsystem telecommands failed. */
 	errCCSDSPacketTooLarge = 0x1E23,		/**< Error CCSDS packet is too large for the CAN FD frame (64 Bytes). */
 	errSensorWarningValue = 0x1E24,			/**< A sensor has reached a minimum or maximum warning value from the paramSensors.csv file. */
 	errSensorCriticalValue = 0x1E25,		/**< A sensor has reached a minimum or maximum critical value from the paramSensors.csv file. */
@@ -109,10 +111,10 @@ typedef enum
 typedef enum
 {
 	init = 0x1700, 									/**< Initialize all subsystems with status and error telemetry. */
-	payloadMode = 0x1702,							/**< Spacecraft normal operation (check TCs, send telemetry, compare sensor values). */
-	processMsg = 0x1703,							/**< Process the 5G packet(s) recieved (redirect to Intersat subsystem or to the ground station). */
-	idleMode = 0x1704,								/**< Activate the low power mode when no 5G packets have been recieved after a certain time. */
-	processNav = 0x1705,							/**< Process the navigation request to find the user location from the doppler shift algorithm */
+	payloadMode = 0x1701,							/**< Spacecraft normal operation (check TCs, send telemetry, compare sensor values). */
+	processMsg = 0x1702,							/**< Process the 5G packet(s) recieved (redirect to Intersat subsystem or to the ground station). */
+	idleMode = 0x1703,								/**< Activate the low power mode when no 5G packets have been recieved after a certain time. */
+	processNav = 0x1704,							/**< Process the navigation request to find the user location from the doppler shift algorithm */
 	restart = 0x17FF, 								/**< Free all subsystems variables, systemd script will restart the program when ending. */
 	ending = 0x1FFF, 								/**< Stop the program. */
 } stateDef;

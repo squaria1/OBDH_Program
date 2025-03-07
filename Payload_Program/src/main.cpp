@@ -89,8 +89,8 @@ int main() {
             break;
         case payloadMode:
             ret = checkTC();
-            if (ret == noError) {
-                    printf("Check TC OK\n");
+            if (ret == noError || ret == infoNoDataInCANBuffer) {
+                //printf("Check TC OK\n");
             }
             else {
                 printf("Error check TC! 0x%04X \n", ret);
@@ -99,12 +99,14 @@ int main() {
 
             ret = recieve5GPackets();
             if(ret == noError) {
-                    printf("No 5G packet recieved.\n");
+                //printf("No 5G packet recieved.\n");
             }
             else if (ret == info5GPacketReceived) {
+                sendTelemToOBDH(infoStateToProcessMsg);
                 state = processMsg;
             }
             else if (ret == infoRecieve5GPacketsTimeout) {
+                printf("State has been changed to idle mode\n");
                 sendTelemToOBDH(infoStateToIdleMode);
                 state = idleMode;
             }
@@ -115,9 +117,10 @@ int main() {
 
             ret = recieveNavReq();
             if(ret == noError) {
-                printf("No nav request recieved.\n");
+                //printf("No nav request recieved.\n");
             }
             else if (ret == infoNavReqReceived) {
+                sendTelemToOBDH(infoStateToProcessNav);
                 state = processNav;
             }
             else {
@@ -149,12 +152,13 @@ int main() {
             }
 
             resetMsgTimer();
+            sendTelemToOBDH(infoStateToPayloadMode);
             state = payloadMode;
             break;
         case idleMode:
             ret = checkTC();
-            if (ret == noError) {
-                    printf("Check TC OK\n");
+            if (ret == noError || ret == infoNoDataInCANBuffer) {
+                //printf("Check TC OK\n");
             }
             else {
                 printf("Error check TC! 0x%04X \n", ret);
@@ -163,9 +167,10 @@ int main() {
 
             ret = recieve5GPacketsIdle();
             if(ret == noError) {
-                    printf("No 5G packet recieved in Idle mode.\n");
+                //printf("No 5G packet recieved in Idle mode.\n");
             }
             else if (ret == info5GPacketReceived) {
+                sendTelemToOBDH(infoStateToProcessMsg);
                 state = processMsg;
             }
             else {
@@ -189,6 +194,7 @@ int main() {
             }
 
             resetMsgTimer();
+            sendTelemToOBDH(infoStateToPayloadMode);
             state = payloadMode;
             break;
         case restart: // Restart program with systemd
@@ -212,22 +218,6 @@ int main() {
 
             retryCounter = 0;
             while (retryCounter < NB_RETRIES) {
-                ret = freeOBDH();
-                if (ret == noError) {
-                    printf("free OBDH OK\n");
-                    sendTelemToOBDH(infoFreeOBDHSuccess);
-                    retryCounter = NB_RETRIES;
-                }
-                else {
-                    printf("Error free OBDH! 0x%04X \n", ret);
-                    sendTelemToOBDH(ret);
-                    sleep(ERROR_RETRY_TIME);
-                    retryCounter++;
-                }
-            }
-
-            retryCounter = 0;
-            while (retryCounter < NB_RETRIES) {
                 ret = freePayload();
                 if (ret == noError) {
                     printf("free Payload OK\n");
@@ -237,6 +227,20 @@ int main() {
                 else {
                     printf("Error free Payload! 0x%04X \n", ret);
                     sendTelemToOBDH(ret);
+                    sleep(ERROR_RETRY_TIME);
+                    retryCounter++;
+                }
+            }
+
+            retryCounter = 0;
+            while (retryCounter < NB_RETRIES) {
+                ret = freeOBDH();
+                if (ret == noError) {
+                    printf("free OBDH OK\n");
+                    retryCounter = NB_RETRIES;
+                }
+                else {
+                    printf("Error free OBDH! 0x%04X \n", ret);
                     sleep(ERROR_RETRY_TIME);
                     retryCounter++;
                 }

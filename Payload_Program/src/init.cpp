@@ -42,12 +42,25 @@ statusErrDef initCANSocket() {
 	struct sockaddr_can addr;
 	struct ifreq ifr;
 
+#if USE_VCAN
+    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link add dev vcan0 type vcan ; sudo ip link set up vcan0");
+#else
+    char sys_cmd_can[CAN_CMD_LENGHT];
+    snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE);
+    system(sys_cmd_can);
+#endif
 	printf("CAN Sockets init\r\n");
 
 	if ((socket_can = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
 		perror("errCreateCANSocket");
 		return errCreateCANSocket;
 	}
+
+	int enable_fd = 1;
+    if (setsockopt(socket_can, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &enable_fd, sizeof(enable_fd)) < 0) {
+        perror("errEnableCANFD");
+        return errEnableCANFD;
+    }
 
 	int buf_size = CAN_SOCKET_BUFFER_SIZE;
 	if(setsockopt(socket_can, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
@@ -77,6 +90,13 @@ statusErrDef initCANSocket() {
 		perror("errBindCANAddr");
 		return errBindCANAddr;
 	}
+
+	//4.Define receive rules
+    struct can_filter rfilter[1];
+    rfilter[0].can_id = CAN_ID_PAYLOAD;
+    rfilter[0].can_mask = CAN_SFF_MASK;
+    setsockopt(socket_can, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
+
 	return ret;
 }
 

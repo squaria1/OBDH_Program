@@ -135,8 +135,15 @@ statusErrDef sendTelemToOBDH(const statusErrDef statusErr) {
 
     std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());  // Copy CCSDS packet into frame
 
+	/*
+	std::cout << "CAN ID: " << frame.can_id << ", Length: " << (int)frame.len << std::endl;
+	for (size_t i = 0; i < frame.len; i++) {
+		std::cout << "Data[" << i << "]: " << (int)frame.data[i] << std::endl;
+	}
+	*/
+
     if (write(socket_can, &frame, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
-        perror("CAN FD send error");
+        perror("errWriteCANPayload");
 		return errWriteCANPayload;
     }
 
@@ -153,9 +160,6 @@ statusErrDef sendTelemToOBDH(const statusErrDef statusErr) {
 statusErrDef recieveTCFromOBDH() {
 	statusErrDef ret = noError;
 	struct canfd_frame frame;
-
-    if (read(socket_can, &frame, sizeof(struct canfd_frame)) < 0) {
-    }
 
 	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct canfd_frame));
 	if (sizeReceived > 0) {
@@ -179,16 +183,25 @@ statusErrDef recieveTCFromOBDH() {
 		std::vector<uint8_t> *userData = ccsdsPacket.getUserDataField();
 		mainStateTC = ((*userData)[0] << 8) | (*userData)[1];
 
-		if(mainStateTC == 0x1701)
+		if(mainStateTC == 0x1701) {
 			resetMsgTimer();
+            printf("State has been changed to control mode\n");
+            sendTelemToOBDH(infoStateToPayloadMode);
+		}
 
 		//get APID
 		std::cout << ccsdsPacket.getPrimaryHeader()->getAPIDAsInteger() << std::endl;
 		//dump packet content
 		std::cout << ccsdsPacket.toString() << std::endl;
 	} else {
-        perror("errReadCANPayload");
-        return errReadCANPayload;
+		// If there's no data, just continue (EAGAIN or EWOULDBLOCK)
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // No data available, continue the loop
+            return infoNoDataInCANBuffer;
+        } else {
+			perror("errReadCANTC");
+			return errReadCANTC;
+		}
 	}
 	return ret;
 }

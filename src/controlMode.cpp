@@ -17,6 +17,7 @@
 std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
 statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue);
 statusErrDef recieveTelemFromSubsystems();
+statusErrDef sendTelemToTTC(std::vector<uint8_t> *telemFromSubystems);
 statusErrDef recieveTCFromTTC();
 void DumpUDPData(uint8_t *data, ssize_t length);
 
@@ -143,6 +144,42 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 }
 
 /**
+ * \brief function to send other subsystems telemetry to the TT&C subsystem
+ *
+ * \param telemFromSubystems the telemetry data from other subsystems
+ * (see statesDefine.h of other subsystems)
+ *
+ * \return statusErrDef that values:
+ * - errWriteUDPTelem when the telemetry can't be sent,
+ * - noError when the function exits successfully.
+ */
+statusErrDef sendTelemToTTC(std::vector<uint8_t> *telemFromSubystems) {
+	statusErrDef ret = noError;
+	std::vector<uint8_t> telemOut;
+
+    telemOut = {(*telemFromSubystems)[0],(*telemFromSubystems)[1]};
+
+	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut);
+
+	// Setup the destination address (this is where the packet will be sent)
+    struct sockaddr_in clientAddr;
+    memset(&clientAddr, 0, sizeof(clientAddr));
+    clientAddr.sin_family = AF_INET;
+    clientAddr.sin_port = htons(UDP_TELEMETRY_PORT);  // Destination port
+    clientAddr.sin_addr.s_addr = inet_addr(TTC_IP_ADDRESS);  // Destination IP address (localhost, change to actual IP)
+
+    // Send the CCSDS packet over UDP
+    ssize_t bytes_sent = sendto(socket_udp, ccsdsPacket.data(), ccsdsPacket.size(),
+                                 0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
+    if (bytes_sent < 0) {
+        perror("errWriteUDPTelem");
+        return errWriteUDPTelem;  // Error in sending packet
+    }
+
+	return ret;
+}
+
+/**
  * \brief function to send telemetry to the TT&C subsystem
  *
  * \param sensor the sensor ID (see statesDefine.h)
@@ -179,8 +216,6 @@ statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> se
         perror("errWriteUDPTelem");
         return errWriteUDPTelem;  // Error in sending packet
     }
-
-    //std::cout << "Sent " << bytes_sent << " bytes over UDP\n";
 
 	return ret;
 }
@@ -287,19 +322,47 @@ statusErrDef recieveTCFromTTC() {
  */
 statusErrDef recieveTelemFromSubsystems() {
 	statusErrDef ret = noError;
+	uint16_t telemRecieved = 0x0000;
 	struct canfd_frame frame;
 
-    if (read(socket_can, &frame, sizeof(struct canfd_frame)) < 0) {
-        perror("errReadCANTelem");
-        return errReadCANTelem;
-    }
+	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct canfd_frame));
+    if (sizeReceived > 0) {
+		std::cout << "Received " << sizeReceived << " bytes from a subsystem\n";
+		//constructs an empty instance
+		CCSDSSpacePacket ccsdsPacket;
+		//interpret an input data as a CCSDS SpacePacket
+		try {
+			// Attempt to interpret the packet
+			ccsdsPacket.interpret(frame.data, sizeReceived);
+		} catch (CCSDSSpacePacketException &e) {
+			// Print the exception details to help debug
+			std::cerr << "CCSDS Packet Error: " << e.toString() << std::endl;
+			std::cerr << "Failed to interpret packet of length " << sizeReceived << std::endl;
+			std::cout << std::endl;
 
-    std::cout << "Received CCSDS packet (" << static_cast<int>(frame.len) << " bytes)\n";
-    std::cout << "Data: ";
-    for (size_t i = 0; i < frame.len; i++) {
-        printf("%02X ", frame.data[i]);
-    }
-    std::cout << std::endl;
+			return errCCSDSPacketUninterpretable;
+		}
+
+		std::vector<uint8_t> *userData = ccsdsPacket.getUserDataField();
+
+		ret = sendTelemToTTC(userData);
+
+		//get APID
+		std::cout << ccsdsPacket.getPrimaryHeader()->getAPIDAsInteger() << std::endl;
+		//dump packet content
+		std::cout << ccsdsPacket.toString() << std::endl;
+
+    } else {
+		// If there's no data, just continue (EAGAIN or EWOULDBLOCK)
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // No data available, continue the loop or function
+            return infoNoDataInCANBuffer;
+        } else {
+            perror("errReadCANTelem");
+            return errReadCANTelem;
+        }
+	}
+
 
 	return ret;
 }
@@ -346,7 +409,7 @@ statusErrDef sendTCToSubsystem(std::vector<uint8_t> TCOut, subsystemDef subsyste
     std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());  // Copy CCSDS packet into frame
 
     if (write(socket_can, &frame, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
-        perror("CAN FD send error");
+        perror("errWriteCANTC");
 		return errWriteCANTC;
     }
     else {
@@ -399,7 +462,7 @@ statusErrDef compareSensorValuesWithParam() {
 statusErrDef checkSensors() {
 	statusErrDef ret = noError;
 	ret = recieveTelemFromSubsystems();
-	if(ret != noError)
+	if(ret != noError && ret != infoNoDataInCANBuffer)
 		return ret;
 	ret = compareSensorValuesWithParam();
 	return ret;
@@ -416,6 +479,8 @@ statusErrDef checkSensors() {
  */
 statusErrDef checkTC() {
 	counter++;
+	if(counter >= 255)
+		counter = 0;
 	statusErrDef ret = noError;
 	ret = recieveTCFromTTC();
 	if(ret != noError)

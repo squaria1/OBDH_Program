@@ -65,8 +65,10 @@
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="-- NOT_SELECTED --"  value="0x0000" shortDescription="" />
+          <Enumeration label="PayloadMode" value="0x1701" shortDescription="" />
+          <Enumeration label="ProcessMsg" value="0x1702" shortDescription="" />
           <Enumeration label="IdleMode"  value="0x1703" shortDescription="" />
-          <Enumeration label="PayloadMode" value="0x1704" shortDescription="" />
+          <Enumeration label="ProcessNav" value="0x1704" shortDescription="" />
           <Enumeration label="Restart"  value="0x17FF" shortDescription="" />
         </EnumerationList>
       </EnumeratedDataType>

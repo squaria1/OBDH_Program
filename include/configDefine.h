@@ -86,7 +86,18 @@
 /**
  * \brief CAN device name in the Linux device management system.
  */
-#define CAN_INTERFACE "can0"
+#define CAN_INTERFACE "vcan0"
+
+/**
+ * \brief Boolean true (1) when vcan0 instead of can0
+ * otherwise false (0).
+ */
+#define USE_VCAN 1
+
+/**
+ * \brief CAN interface system command maximum length
+ */
+#define CAN_CMD_LENGHT 256
 
 /**
  * \brief CAN socket buffer size in bytes
