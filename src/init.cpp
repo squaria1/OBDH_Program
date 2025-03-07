@@ -102,7 +102,7 @@ int countFileLines(const char *filename) {
 
 
     int count = 0;
-    char ch;
+    int ch;
 
     while ((ch = fgetc(file)) != EOF) {
         printf("count: %d \n", count);
