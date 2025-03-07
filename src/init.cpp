@@ -205,12 +205,6 @@ statusErrDef initCANSocket() {
 		return errCreateCANSocket;
 	}
 
-    int enable_fd = 1;
-    if (setsockopt(socket_can, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &enable_fd, sizeof(enable_fd)) < 0) {
-        perror("errEnableCANFD");
-        return errEnableCANFD;
-    }
-
 	int buf_size = CAN_SOCKET_BUFFER_SIZE;
 	if(setsockopt(socket_can, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
 		perror("errSetCANSocketBufSize");

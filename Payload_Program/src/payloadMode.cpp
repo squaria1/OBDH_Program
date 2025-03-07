@@ -116,38 +116,38 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
  * - noError when the function exits successfully.
  */
 statusErrDef sendTelemToOBDH(const statusErrDef statusErr) {
-	statusErrDef ret = noError;
-	std::vector<uint8_t> telemOut;
-	uint8_t categoryHighByte = (statusErr >> 8) & 0xFF;  // Get the higher byte (8 most significant bits)
-    uint8_t categoryLowByte = statusErr & 0xFF; // Get the lower byte (8 least significant bits)
+    statusErrDef ret = noError;
+    std::vector<uint8_t> telemOut;
+    uint8_t categoryHighByte = (statusErr >> 8) & 0xFF;  // High byte
+    uint8_t categoryLowByte = statusErr & 0xFF;          // Low byte
+    telemOut = {categoryHighByte, categoryLowByte};
 
-    telemOut = {categoryHighByte,categoryLowByte};
-
-	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut);
-	if (ccsdsPacket.size() > DATA_OUT_CAN_MAX_LENGTH) {
-        std::cerr << "Error: CCSDS packet too large for single CAN FD frame\n";
+    std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut);
+    if (ccsdsPacket.size() > DATA_OUT_CAN_MAX_LENGTH) {  // Classic CAN max payload is 8 bytes
+        std::cerr << "Error: CCSDS packet too large for CAN frame\n";
         return errCCSDSPacketTooLarge;
     }
 
-    struct canfd_frame frame;
-    frame.can_id = CAN_ID_OBDH;  // Set appropriate CAN ID
-    frame.len = ccsdsPacket.size();  // Payload length
+    struct can_frame frame;  // Use classic CAN frame
+    frame.can_id = CAN_ID_OBDH;
+    frame.can_dlc = ccsdsPacket.size();  // Data length code (0-8 bytes)
+    std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());
 
-    std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());  // Copy CCSDS packet into frame
+    // Debug output (optional)
+    /*
+    std::cout << "CAN ID: " << frame.can_id << ", Length: " << (int)frame.can_dlc << std::endl;
+    for (size_t i = 0; i < frame.can_dlc; i++) {
+        std::cout << "Data[" << i << "]: " << (int)frame.data[i] << std::endl;
+    }
+    */
 
-	/*
-	std::cout << "CAN ID: " << frame.can_id << ", Length: " << (int)frame.len << std::endl;
-	for (size_t i = 0; i < frame.len; i++) {
-		std::cout << "Data[" << i << "]: " << (int)frame.data[i] << std::endl;
-	}
-	*/
-
-    if (write(socket_can, &frame, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
+    // Write the frame (use sizeof(struct can_frame))
+    if (write(socket_can, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
         perror("errWriteCANPayload");
-		return errWriteCANPayload;
+        return errWriteCANPayload;
     }
 
-	return ret;
+    return ret;
 }
 
 /**
@@ -159,7 +159,7 @@ statusErrDef sendTelemToOBDH(const statusErrDef statusErr) {
  */
 statusErrDef recieveTCFromOBDH() {
 	statusErrDef ret = noError;
-	struct canfd_frame frame;
+    struct can_frame frame;  // Use classic CAN frame
 
 	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct canfd_frame));
 	if (sizeReceived > 0) {

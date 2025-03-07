@@ -38,9 +38,9 @@ int socket_udp = 0;
  * - noError when the function exits successfully.
  */
 statusErrDef initCANSocket() {
-	statusErrDef ret = noError;
-	struct sockaddr_can addr;
-	struct ifreq ifr;
+    statusErrDef ret = noError;
+    struct sockaddr_can addr;
+    struct ifreq ifr;
 
 #if USE_VCAN
     system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link set vcan0 down ; sudo ip link add dev vcan0 type vcan ; sudo ip link set vcan0 up");
@@ -49,55 +49,52 @@ statusErrDef initCANSocket() {
     snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s down ; sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE, CAN_INTERFACE);
     system(sys_cmd_can);
 #endif
-	printf("CAN Sockets init\r\n");
+    printf("CAN Sockets init\r\n");
 
-	if ((socket_can = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
-		perror("errCreateCANSocket");
-		return errCreateCANSocket;
-	}
-
-	int enable_fd = 1;
-    if (setsockopt(socket_can, SOL_CAN_RAW, CAN_RAW_FD_FRAMES, &enable_fd, sizeof(enable_fd)) < 0) {
-        perror("errEnableCANFD");
-        return errEnableCANFD;
+    // Create a raw CAN socket (classic CAN)
+    if ((socket_can = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+        perror("errCreateCANSocket");
+        return errCreateCANSocket;
     }
 
-	int buf_size = CAN_SOCKET_BUFFER_SIZE;
-	if(setsockopt(socket_can, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1){
-		perror("errSetCANSocketBufSize");
-		return errSetCANSocketBufSize;
-	}
+    // Set buffer size (optional, keep for robustness)
+    int buf_size = CAN_SOCKET_BUFFER_SIZE;
+    if (setsockopt(socket_can, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size)) == -1) {
+        perror("errSetCANSocketBufSize");
+        return errSetCANSocketBufSize;
+    }
 
-	int flags = fcntl(socket_can, F_GETFL, 0);
-	if(flags == -1) {
-		perror("errGetCANSocketFlags");
-		return errGetCANSocketFlags;
-	}
-    if(fcntl(socket_can, F_SETFL, flags | O_NONBLOCK) == -1) {
-		perror("errSetCANSocketNonBlocking");
-		return errSetCANSocketNonBlocking;
-	}
+    // Set non-blocking mode (optional, keep as is)
+    int flags = fcntl(socket_can, F_GETFL, 0);
+    if (flags == -1) {
+        perror("errGetCANSocketFlags");
+        return errGetCANSocketFlags;
+    }
+    if (fcntl(socket_can, F_SETFL, flags | O_NONBLOCK) == -1) {
+        perror("errSetCANSocketNonBlocking");
+        return errSetCANSocketNonBlocking;
+    }
 
+    // Bind to the CAN interface
+    strcpy(ifr.ifr_name, CAN_INTERFACE);
+    ioctl(socket_can, SIOCGIFINDEX, &ifr);
 
-	strcpy(ifr.ifr_name, CAN_INTERFACE);
-	ioctl(socket_can, SIOCGIFINDEX, &ifr);
+    memset(&addr, 0, sizeof(addr));
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
 
-	memset(&addr, 0, sizeof(addr));
-	addr.can_family = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
+    if (bind(socket_can, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("errBindCANAddr");
+        return errBindCANAddr;
+    }
 
-	if (bind(socket_can, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-		perror("errBindCANAddr");
-		return errBindCANAddr;
-	}
-
-	//4.Define receive rules
+    // Define receive filter (optional, unchanged)
     struct can_filter rfilter[1];
     rfilter[0].can_id = CAN_ID_PAYLOAD;
     rfilter[0].can_mask = CAN_SFF_MASK;
     setsockopt(socket_can, SOL_CAN_RAW, CAN_RAW_FILTER, &rfilter, sizeof(rfilter));
 
-	return ret;
+    return ret;
 }
 
 /**

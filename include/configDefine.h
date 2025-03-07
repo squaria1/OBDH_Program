@@ -129,9 +129,9 @@
 /**
  * \brief Maximum CCSDS user data accounting for the
  * CCSDS primary and secondary headers
- * (64 Bytes maximum for a CAN FD frame).
+ * (8 Bytes maximum for a CAN frame).
  */
-#define DATA_OUT_CAN_MAX_LENGTH 48
+#define DATA_OUT_CAN_MAX_LENGTH 8
 
 /**
  * \brief Number of initialisation or freeing error retries.

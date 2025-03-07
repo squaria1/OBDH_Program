@@ -323,10 +323,9 @@ statusErrDef recieveTCFromTTC() {
  */
 statusErrDef recieveTelemFromSubsystems() {
 	statusErrDef ret = noError;
-	uint16_t telemRecieved = 0x0000;
-	struct canfd_frame frame;
+	struct can_frame frame;
 
-	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct canfd_frame));
+	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct can_frame));
     if (sizeReceived > 0) {
 		std::cout << "Received " << sizeReceived << " bytes from a subsystem\n";
 		//constructs an empty instance
@@ -403,13 +402,13 @@ statusErrDef sendTCToSubsystem(std::vector<uint8_t> TCOut, subsystemDef subsyste
         return errCCSDSPacketTooLarge;
     }
 
-    struct canfd_frame frame;
+    struct can_frame frame;
     frame.can_id = canId;  // Set appropriate CAN ID
     frame.len = ccsdsPacket.size();  // Payload length
 
     std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());  // Copy CCSDS packet into frame
 
-    if (write(socket_can, &frame, sizeof(struct canfd_frame)) != sizeof(struct canfd_frame)) {
+    if (write(socket_can, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
         perror("errWriteCANTC");
 		return errWriteCANTC;
     }
