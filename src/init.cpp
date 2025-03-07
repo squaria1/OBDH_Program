@@ -91,22 +91,28 @@ statusErrDef initSensorParamCSV() {
  * \return the line count.
  */
 int countFileLines(const char *filename) {
+    printf("ok11\n");
+    printf("filename: %s \n", filename);
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
         perror("File open error");
         return -1;
     }
 
+
+
     int count = 0;
     char ch;
 
     while ((ch = fgetc(file)) != EOF) {
+        printf("count: %d \n", count);
         if (ch == '\n') {
             count++;
         }
     }
 
     fclose(file);
+    printf("ok12\n");
     return count;
 }
 
