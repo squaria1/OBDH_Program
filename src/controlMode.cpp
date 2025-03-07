@@ -119,9 +119,13 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
 	uint8_t categoryHighByte = (statusErr >> 8) & 0xFF;  // Get the higher byte (8 most significant bits)
     uint8_t categoryLowByte = statusErr & 0xFF; // Get the lower byte (8 least significant bits)
 
+    printf("testTTC1\n");
+
     telemOut = {categoryHighByte,categoryLowByte};
 
 	std::vector<uint8_t> ccsdsPacket = generateCCSDSPacket(telemOut);
+
+    printf("testTTC2\n");
 
 	// Setup the destination address (this is where the packet will be sent)
     struct sockaddr_in clientAddr;
@@ -130,6 +134,7 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
     clientAddr.sin_port = htons(UDP_TELEMETRY_PORT);  // Destination port
     clientAddr.sin_addr.s_addr = inet_addr(TTC_IP_ADDRESS);  // Destination IP address (localhost, change to actual IP)
 
+    printf("testTTC3\n");
     // Send the CCSDS packet over UDP
     ssize_t bytes_sent = sendto(socket_udp, ccsdsPacket.data(), ccsdsPacket.size(),
                                  0, (struct sockaddr*)&clientAddr, sizeof(clientAddr));
@@ -137,6 +142,9 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
         perror("errWriteUDPTelem");
         return errWriteUDPTelem;  // Error in sending packet
     }
+
+
+    printf("testTTC4\n");
 
     //std::cout << "Sent " << bytes_sent << " bytes over UDP\n";
 
