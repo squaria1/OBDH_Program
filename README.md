@@ -63,6 +63,7 @@ make
 
 Run the OBDH program,
 ```
+cd ~/OBDH_Program/build
 sudo ./OBDH_Program
 ```
 
@@ -88,7 +89,8 @@ make
 
 Run the Payload program,
 ```
-sudo ./OBDH_Program
+cd ~/OBDH_Program/Payload_Program/build
+sudo ./Payload_Program
 ```
 
 (Optional) Generate Payload program documentation with Doxygen,
