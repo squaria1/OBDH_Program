@@ -161,7 +161,7 @@ statusErrDef recieveTCFromOBDH() {
 	statusErrDef ret = noError;
     struct can_frame frame;  // Use classic CAN frame
 
-	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct canfd_frame));
+	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct can_frame));
 	if (sizeReceived > 0) {
 		//constructs an empty instance
 		CCSDSSpacePacket ccsdsPacket;
