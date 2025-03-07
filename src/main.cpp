@@ -40,6 +40,7 @@ int main() {
                     printf("init TT&C OK\n");
                     sendTelemToTTC(infoInitTTCSuccess);
                     retryCounter = NB_RETRIES;
+                    printf("TESTEST1\n");
                 }
                 else {
                     printf("Error init TT&C! 0x%04X \n", ret);
@@ -47,6 +48,8 @@ int main() {
                     retryCounter++;
                 }
             }
+
+            printf("TESTEST2\n");
 
             retryCounter = 0;
             while (retryCounter < NB_RETRIES) {
