@@ -58,13 +58,12 @@ int lineCountSensorParamCSV = 0;
  */
 statusErrDef initSensorParamCSV() {
 	statusErrDef ret = noError;
-    printf("ok1\n");
+
 	lineCountSensorParamCSV = countFileLines(PARAM_SENSORS_CSV_FILEPATH);
     if(lineCountSensorParamCSV == -1) {
 		return errOpenParamSensorsFile;
     }
 
-    printf("ok2\n");
 	paramSensors = (struct paramSensorsStruct*)malloc(sizeof(struct paramSensorsStruct));
 	if (paramSensors == NULL)
 	{
@@ -72,13 +71,9 @@ statusErrDef initSensorParamCSV() {
 		return errAllocParamSensorStruct;
 	}
 
-    printf("ok3\n");
 	memset(paramSensors, 0, sizeof(struct paramSensorsStruct));
 
-    printf("ok4\n");
 	ret = readParamSensorsFile(PARAM_SENSORS_CSV_FILEPATH);
-
-    printf("ok5\n");
 	return ret;
 }
 
@@ -91,7 +86,6 @@ statusErrDef initSensorParamCSV() {
  * \return the line count.
  */
 int countFileLines(const char *filename) {
-    printf("ok11\n");
     printf("filename: %s \n", filename);
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -99,20 +93,16 @@ int countFileLines(const char *filename) {
         return -1;
     }
 
-
-
     int count = 0;
     int ch;
 
     while ((ch = fgetc(file)) != EOF) {
-        printf("count: %d \n", count);
         if (ch == '\n') {
             count++;
         }
     }
 
     fclose(file);
-    printf("ok12\n");
     return count;
 }
 
@@ -199,16 +189,12 @@ statusErrDef initCANSocket() {
 	struct sockaddr_can addr;
 	struct ifreq ifr;
 
-    printf("test1\n");
-
 #if USE_VCAN
     system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link add dev vcan0 type vcan ; sudo ip link set up vcan0");
 #else
-    printf("test3\n");
     char sys_cmd_can[CAN_CMD_LENGHT];
     snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE);
 
-    printf("test4\n");
     system(sys_cmd_can);
 #endif
 
