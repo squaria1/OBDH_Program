@@ -42,8 +42,10 @@ statusErrDef initCANSocket() {
 	struct sockaddr_can addr;
 	struct ifreq ifr;
 
+    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan");
+
 #if USE_VCAN
-    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link add dev vcan0 type vcan ; sudo ip link set up vcan0");
+    system("sudo ip link add dev vcan0 type vcan ; sudo ip link set up vcan0");
 #else
     char sys_cmd_can[CAN_CMD_LENGHT];
     snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE);
