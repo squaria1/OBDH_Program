@@ -157,7 +157,7 @@
  * \brief TT&C subsytem IP address for telemetry and
  * telecommands with the OBDH subsystem.
  */
-#define TTC_IP_ADDRESS "127.0.0.1"
+#define TTC_IP_ADDRESS "192.168.10.4"
 
 /**
  * \brief Maximum number of sensors in the spacecraft
