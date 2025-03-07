@@ -190,10 +190,10 @@ statusErrDef initCANSocket() {
 	struct ifreq ifr;
 
 #if USE_VCAN
-    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link add dev vcan0 type vcan ; sudo ip link set up vcan0");
+    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link set vcan0 down ; sudo ip link add dev vcan0 type vcan ; sudo ip link set vcan0 up");
 #else
     char sys_cmd_can[CAN_CMD_LENGHT];
-    snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE);
+    snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s down ; sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE, CAN_INTERFACE);
 
     system(sys_cmd_can);
 #endif
