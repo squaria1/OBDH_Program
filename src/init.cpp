@@ -58,11 +58,13 @@ int lineCountSensorParamCSV = 0;
  */
 statusErrDef initSensorParamCSV() {
 	statusErrDef ret = noError;
+    printf("ok1\n");
 	lineCountSensorParamCSV = countFileLines(PARAM_SENSORS_CSV_FILEPATH);
     if(lineCountSensorParamCSV == -1) {
 		return errOpenParamSensorsFile;
     }
 
+    printf("ok2\n");
 	paramSensors = (struct paramSensorsStruct*)malloc(sizeof(struct paramSensorsStruct));
 	if (paramSensors == NULL)
 	{
@@ -70,10 +72,13 @@ statusErrDef initSensorParamCSV() {
 		return errAllocParamSensorStruct;
 	}
 
+    printf("ok3\n");
 	memset(paramSensors, 0, sizeof(struct paramSensorsStruct));
 
+    printf("ok4\n");
 	ret = readParamSensorsFile(PARAM_SENSORS_CSV_FILEPATH);
 
+    printf("ok5\n");
 	return ret;
 }
 
