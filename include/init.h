@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -50,13 +51,29 @@ statusErrDef initPPU();
  * \brief struct containing values taken from "paramSensors.csv"
  *
  */
+
 struct paramSensorsStruct {
-    uint16_t id[MAX_SENSORS];                   /**< In the form like 0x1902 Where 1 is the payload subsystem and 2 is the third sensor of the subsystem */
-    int32_t minCriticalValue[MAX_SENSORS];      /**< Minimum critical value of the sensor */
-    int32_t minWarnValue[MAX_SENSORS];          /**< Minimum warning value of the sensor */
-    int32_t currentValue[MAX_SENSORS];          /**< Current value of the sensor */
-    int32_t maxWarnValue[MAX_SENSORS];          /**< Maximum warning value of the sensor */
-    int32_t maxCriticalValue[MAX_SENSORS];      /**< Maximum critical value of the sensor */
+    uint16_t *id;                           /**< In the form like 0x1902 Where 1 is the payload subsystem and 2 is the third sensor of the subsystem */
+    int32_t *minCriticalValue;              /**< Minimum critical value of the sensor */
+    int32_t *minWarnValue;                  /**< Minimum warning value of the sensor */
+    int32_t *currentValue;                  /**< Current value of the sensor */
+    int32_t *maxWarnValue;                  /**< Maximum warning value of the sensor */
+    int32_t *maxCriticalValue;              /**< Maximum critical value of the sensor */
+};
+
+
+/**
+ * \struct sensorsValStruct
+ * \brief struct containing values history of every
+ * sensors in "paramSensors.csv"
+ *
+ */
+struct sensorsValStruct {
+    uint16_t id;
+    uint16_t currentFileLine;
+    FILE* sensorFile;
+    double timeStamp[READINGS_PER_SENSOR];
+    int32_t value[READINGS_PER_SENSOR];
 };
 
 
@@ -67,5 +84,8 @@ extern int lineCountSensorParamCSV;
 extern int socket_can;
 extern int socket_udp;
 extern struct paramSensorsStruct* paramSensors;
+extern struct sensorsValStruct* sensorsVal;
+extern struct timespec beginTimeOBDH;
+extern struct timespec endTimeOBDH;
 
 #endif

@@ -27,6 +27,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <fcntl.h>
+#include <time.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
@@ -43,5 +44,7 @@ statusErrDef initIntersat();
 //------------------------------------------------------------------------------
 extern int socket_can;
 extern int socket_udp;
+extern struct timespec beginSensorSamplingTimer;
+extern struct timespec endSensorSamplingTimer;
 
 #endif

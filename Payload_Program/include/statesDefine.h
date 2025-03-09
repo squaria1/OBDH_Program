@@ -110,17 +110,26 @@ typedef enum
  */
 typedef enum
 {
-	init = 0x1700, 									/**< Initialize all subsystems with status and error telemetry. */
-	payloadMode = 0x1701,							/**< Spacecraft normal operation (check TCs, send telemetry, compare sensor values). */
-	processMsg = 0x1702,							/**< Process the 5G packet(s) recieved (redirect to Intersat subsystem or to the ground station). */
-	idleMode = 0x1703,								/**< Activate the low power mode when no 5G packets have been recieved after a certain time. */
-	processNav = 0x1704,							/**< Process the navigation request to find the user location from the doppler shift algorithm */
-	restart = 0x17FF, 								/**< Free all subsystems variables, systemd script will restart the program when ending. */
-	ending = 0x1FFF, 								/**< Stop the program. */
+	init = 0x1700, 							/**< Initialize all subsystems with status and error telemetry. */
+	payloadMode = 0x1701,					/**< Spacecraft normal operation (check TCs, send telemetry, compare sensor values). */
+	processMsg = 0x1702,					/**< Process the 5G packet(s) recieved (redirect to Intersat subsystem or to the ground station). */
+	idleMode = 0x1703,						/**< Activate the low power mode when no 5G packets have been recieved after a certain time. */
+	processNav = 0x1704,					/**< Process the navigation request to find the user location from the doppler shift algorithm */
+	restart = 0x17FF, 						/**< Free all subsystems variables, systemd script will restart the program when ending. */
+	ending = 0x1FFF, 						/**< Stop the program. */
 } stateDef;
 
 const std::unordered_set<uint16_t> validStates = {
     init, payloadMode, processMsg, idleMode, processNav, restart, ending
 };
+
+/**
+ * \enum sensorDef
+ * \brief list of the payload sensors
+ */
+typedef enum
+{
+	sensor1 = 0x0900,						/**<  */
+} sensorDef;
 
 #endif

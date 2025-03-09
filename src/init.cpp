@@ -18,16 +18,44 @@ statusErrDef initSensorParamCSV();
 int countFileLines(const char *filename);
 statusErrDef readParamSensorsFile(const char* fileName);
 void fillParamSensorsStruct(char* line, int pos);
+statusErrDef initSensorValArrays();
+statusErrDef writeSensorsValFile(const char* fileName, int index);
 statusErrDef initCANSocket();
 statusErrDef initUDPSocket();
 
 /**
  * \struct paramSensors
- * \brief struct containing the parameters of each sensors
- * on the spacecraft
+ * \brief array of struct containing the parameters of
+ * each sensors on the spacecraft.
+ * Array size determined by the number of sensors
+ * defined in "paramSensors.csv".
  *
  */
 struct paramSensorsStruct* paramSensors;
+
+/**
+ * \struct sensorsVal
+ * \brief array of struct containing the history of
+ * sensor values of every sensors.
+ * Array size determined by the number of sensors
+ * defined in "paramSensors.csv".
+ *
+ */
+struct sensorsValStruct* sensorsVal;
+
+/**
+ * \struct beginTimeOBDH
+ * \brief struct of the OBDH program begin time.
+ *
+ */
+struct timespec beginTimeOBDH;
+
+/**
+ * \struct endTimeOBDH
+ * \brief struct of the OBDH program end time.
+ *
+ */
+struct timespec endTimeOBDH;
 
 /**
  * \brief the CAN socket global variable.
@@ -58,22 +86,74 @@ int lineCountSensorParamCSV = 0;
  */
 statusErrDef initSensorParamCSV() {
 	statusErrDef ret = noError;
+    char filePath[MAX_PATH_LENGHT];
 
-	lineCountSensorParamCSV = countFileLines(PARAM_SENSORS_CSV_FILEPATH);
+    sprintf(filePath, "%s%s",OUTPUT_FILES_DIR, PARAM_SENSORS_CSV_FILENAME);
+	lineCountSensorParamCSV = countFileLines(filePath);
     if(lineCountSensorParamCSV == -1) {
 		return errOpenParamSensorsFile;
     }
+    if (lineCountSensorParamCSV <= 1) {
+        printf("No sensors found in file.\n");
+        paramSensors = NULL; // Handle empty file case
+        return noError; // Or return an error if this is invalid
+    }
 
-	paramSensors = (struct paramSensorsStruct*)malloc(sizeof(struct paramSensorsStruct));
-	if (paramSensors == NULL)
-	{
-		perror("Error allocating memory");
-		return errAllocParamSensorStruct;
-	}
+    lineCountSensorParamCSV--; // Adjust for header
 
-	memset(paramSensors, 0, sizeof(struct paramSensorsStruct));
+    // Allocate the struct itself
+    paramSensors = (struct paramSensorsStruct*)malloc(sizeof(struct paramSensorsStruct));
+    if (paramSensors == NULL) {
+        perror("Error allocating memory for struct");
+        return errAllocParamSensorStruct;
+    }
 
-	ret = readParamSensorsFile(PARAM_SENSORS_CSV_FILEPATH);
+    paramSensors->id = (uint16_t*)malloc(lineCountSensorParamCSV * sizeof(uint16_t));
+    paramSensors->minCriticalValue = (int32_t*)malloc(lineCountSensorParamCSV * sizeof(int32_t));
+    paramSensors->minWarnValue = (int32_t*)malloc(lineCountSensorParamCSV * sizeof(int32_t));
+    paramSensors->currentValue = (int32_t*)malloc(lineCountSensorParamCSV * sizeof(int32_t));
+    paramSensors->maxWarnValue = (int32_t*)malloc(lineCountSensorParamCSV * sizeof(int32_t));
+    paramSensors->maxCriticalValue = (int32_t*)malloc(lineCountSensorParamCSV * sizeof(int32_t));
+
+    // Check all allocations
+    if (paramSensors->id == NULL || paramSensors->minCriticalValue == NULL ||
+        paramSensors->minWarnValue == NULL || paramSensors->currentValue == NULL ||
+        paramSensors->maxWarnValue == NULL || paramSensors->maxCriticalValue == NULL) {
+        perror("errAllocParamSensorStruct");
+        // Free any successful allocations to avoid leaks
+        free(paramSensors->id);
+        free(paramSensors->minCriticalValue);
+        free(paramSensors->minWarnValue);
+        free(paramSensors->currentValue);
+        free(paramSensors->maxWarnValue);
+        free(paramSensors->maxCriticalValue);
+        free(paramSensors);
+        paramSensors = NULL;
+        return errAllocParamSensorStruct;
+    }
+
+    // Initialize all arrays to 0
+    memset(paramSensors->id, 0, lineCountSensorParamCSV * sizeof(uint16_t));
+    memset(paramSensors->minCriticalValue, 0, lineCountSensorParamCSV * sizeof(int32_t));
+    memset(paramSensors->minWarnValue, 0, lineCountSensorParamCSV * sizeof(int32_t));
+    memset(paramSensors->currentValue, 0, lineCountSensorParamCSV * sizeof(int32_t));
+    memset(paramSensors->maxWarnValue, 0, lineCountSensorParamCSV * sizeof(int32_t));
+    memset(paramSensors->maxCriticalValue, 0, lineCountSensorParamCSV * sizeof(int32_t));
+
+	ret = readParamSensorsFile(filePath);
+
+    if (paramSensors != NULL) {
+        printf("Number of sensors: %d\n", lineCountSensorParamCSV);
+        for (int i = 0; i < lineCountSensorParamCSV; i++) {
+            printf("Sensor %d: id=0x%04X, minCrit=%d, minWarn=%d, maxWarn=%d, maxCrit=%d\n",
+                   i, paramSensors->id[i], paramSensors->minCriticalValue[i],
+                   paramSensors->minWarnValue[i], paramSensors->maxWarnValue[i],
+                   paramSensors->maxCriticalValue[i]);
+        }
+    } else {
+        printf("paramSensors is NULL\n");
+    }
+
 	return ret;
 }
 
@@ -125,7 +205,14 @@ statusErrDef readParamSensorsFile(const char* fileName) {
     int pos = 0;
 
     char line[MAX_CSV_LINE_SIZE];
-    while (fgets(line, sizeof(line), file) != NULL)
+    // Skip the header line
+    if (fgets(line, sizeof(line), file) == NULL) {
+        fclose(file);
+        // File is empty or unreadable
+        return errOpenParamSensorsFile;
+    }
+
+    while (fgets(line, sizeof(line), file) != NULL && pos <= lineCountSensorParamCSV)
     {
         line[strcspn(line, "\n")] = 0;
         fillParamSensorsStruct(line, pos);
@@ -148,29 +235,84 @@ void fillParamSensorsStruct(char* line, int pos) {
 
     while (token != NULL)
     {
-        switch (column)
-        {
-        case 1:
-            paramSensors->id[pos] = (uint16_t)strtol(token, NULL, 0);
-            break;
-        case 2:
-            paramSensors->minCriticalValue[pos] = atoi(token);
-            break;
-        case 3:
-            paramSensors->minWarnValue[pos] = atoi(token);
-            break;
-        case 5:
-            paramSensors->maxWarnValue[pos] = atoi(token);
-            break;
-        case 6:
-            paramSensors->maxCriticalValue[pos] = atoi(token);
-            break;
-        default:
-            break;
+        switch (column) {
+            case 1:
+                paramSensors->id[pos] = (uint16_t)strtol(token, NULL, 0);
+                break;
+            case 2:
+                paramSensors->minCriticalValue[pos] = atoi(token);
+                break;
+            case 3:
+                paramSensors->minWarnValue[pos] = atoi(token);
+                break;
+            case 5:
+                paramSensors->maxWarnValue[pos] = atoi(token);
+                break;
+            case 6:
+                paramSensors->maxCriticalValue[pos] = atoi(token);
+                break;
+            default:
+                break;
         }
         column++;
         token = strtok(NULL, ";");
     }
+}
+
+/**
+ * \brief function to initialize the sensorVal structure
+ * and the sensor values files.
+ *
+ * \return statusErrDef that values:
+ * - errAllocSensorValStruct when the sensorVal structure memory allocation fails
+ * - errOpenParamSensorsFile when the paramSensors.csv file fails to open
+ * - noError when the function exits successfully.
+ */
+statusErrDef initSensorValArrays() {
+	statusErrDef ret = noError;
+    char filePath[MAX_PATH_LENGHT];
+
+    // Allocate array of structs for lineCountSensorParamCSV sensors
+    sensorsVal = (struct sensorsValStruct*)malloc(lineCountSensorParamCSV * sizeof(struct sensorsValStruct));
+    if (sensorsVal == NULL) {
+        perror("errAllocSensorValStruct");
+        return errAllocSensorsValStruct;
+    }
+
+    // Initialize all elements to zero
+    memset(sensorsVal, 0, lineCountSensorParamCSV * sizeof(struct sensorsValStruct));
+
+    for(int i = 0; i < lineCountSensorParamCSV; i++) {
+        sprintf(filePath, "%s0x%04X.csv",OUTPUT_FILES_DIR, paramSensors->id[i]);
+        sensorsVal[i].id = paramSensors->id[i];
+        ret = writeSensorsValFile(filePath, i);
+    }
+
+    return ret;
+}
+
+/**
+ * \brief function to read "paramSensors.csv"
+ * until the end of the file.
+ *
+ * \param fileName location and name of the CSV file to read
+ * \return statusErrDef that values:
+ * - errOpenParamSensorsFile when the paramSensors.csv file fails to open
+ * - noError when the function exits successfully.
+ */
+statusErrDef writeSensorsValFile(const char* fileName, int index) {
+    printf("filename: %s\n", fileName);
+    sensorsVal[index].sensorFile = fopen(fileName, "w");
+    if (sensorsVal[index].sensorFile == NULL) {
+        perror("File open error");
+        return errOpenSensorsValFile;
+    }
+
+    // Write CSV header
+    fprintf(sensorsVal[index].sensorFile, "Timestamp since program start (sec);Value\n");
+
+    // Don’t close here if you want to write more later
+    return noError;
 }
 
 /**
@@ -190,7 +332,7 @@ statusErrDef initCANSocket() {
 	struct ifreq ifr;
 
 #if USE_VCAN
-    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link set vcan0 down ; sudo ip link add dev vcan0 type vcan ; sudo ip link set vcan0 up");
+    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link add dev vcan0 type vcan ; sudo ip link set vcan0 up");
 #else
     char sys_cmd_can[CAN_CMD_LENGHT];
     snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s down ; sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE, CAN_INTERFACE);
@@ -308,6 +450,11 @@ statusErrDef initOBDH() {
 	ret = initSensorParamCSV();
 	if(ret != noError)
 		return ret;
+
+    ret = initSensorValArrays();
+	if(ret != noError)
+		return ret;
+
 	ret = initCANSocket();
 	return ret;
 }
@@ -331,6 +478,7 @@ statusErrDef initAOCS() {
  */
 statusErrDef initTTC() {
 	statusErrDef ret = noError;
+	clock_gettime(CLOCK_MONOTONIC, &beginTimeOBDH);
 	ret = initUDPSocket();
 	return ret;
 }

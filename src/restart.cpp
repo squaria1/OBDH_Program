@@ -29,9 +29,13 @@ statusErrDef closeUDPSocket();
  */
 statusErrDef closeCANSocket() {
 	statusErrDef ret = noError;
+
+#if USE_VCAN
+#else
 	char sys_cmd_can[CAN_CMD_LENGHT];
 	sprintf(sys_cmd_can, "sudo ip link set %s down", CAN_INTERFACE);
     system(sys_cmd_can);
+#endif
 
 	if (close(socket_can) < 0) {
 		perror("errCloseCANSocket");
@@ -65,7 +69,22 @@ statusErrDef closeUDPSocket() {
 statusErrDef freeOBDH() {
 	statusErrDef ret = noError;
 	ret = closeCANSocket();
+	free(paramSensors->id);
+	free(paramSensors->minCriticalValue);
+	free(paramSensors->minWarnValue);
+	free(paramSensors->currentValue);
+	free(paramSensors->maxWarnValue);
+	free(paramSensors->maxCriticalValue);
 	free(paramSensors);
+	paramSensors = NULL;
+	for(int i = 0; i < lineCountSensorParamCSV; i++) {
+		fclose(sensorsVal[i].sensorFile);
+		sensorsVal[i].sensorFile = NULL; // Prevent dangling pointer
+	}
+	if (sensorsVal != NULL) {
+        free(sensorsVal);
+        sensorsVal = NULL;
+    }
 	return ret;
 }
 

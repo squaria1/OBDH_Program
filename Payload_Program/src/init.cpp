@@ -23,6 +23,15 @@ int socket_can = 0;
  */
 int socket_udp = 0;
 
+/**
+ * \brief beginning references of the sensors sampling timer.
+ */
+struct timespec beginSensorSamplingTimer;
+/**
+ * \brief ending references of the sensors sampling timer.
+ */
+struct timespec endSensorSamplingTimer;
+
 //------------------------------------------------------------------------------
 // Local function definitions
 //------------------------------------------------------------------------------
@@ -43,7 +52,7 @@ statusErrDef initCANSocket() {
     struct ifreq ifr;
 
 #if USE_VCAN
-    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link set vcan0 down ; sudo ip link add dev vcan0 type vcan ; sudo ip link set vcan0 up");
+    system("sudo modprobe can ; sudo modprobe can_raw ; sudo modprobe vcan ; sudo ip link add dev vcan0 type vcan ; sudo ip link set vcan0 up");
 #else
     char sys_cmd_can[CAN_CMD_LENGHT];
     snprintf(sys_cmd_can, sizeof(sys_cmd_can), "sudo ip link set %s down ; sudo ip link set %s type can bitrate 100000 ; sudo ip link set %s up", CAN_INTERFACE, CAN_INTERFACE, CAN_INTERFACE);
@@ -161,6 +170,7 @@ statusErrDef initUDPSocket() {
  */
 statusErrDef initOBDH() {
 	statusErrDef ret = noError;
+	clock_gettime(CLOCK_MONOTONIC, &beginSensorSamplingTimer);
 	ret = initCANSocket();
 	return ret;
 }

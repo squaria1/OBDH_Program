@@ -15,6 +15,7 @@
 // Local function definitions
 //------------------------------------------------------------------------------
 std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
+statusErrDef sendSensorDataToOBDH(const sensorDef sensorId, int32_t sensorValue);
 statusErrDef recieveTCFromOBDH();
 
 //------------------------------------------------------------------------------
@@ -30,11 +31,11 @@ uint8_t counter = 0;
 uint16_t mainStateTC = 0xFFFF;
 
 /**
- * \brief beginning references of the dependance timers.
+ * \brief beginning references of the message timeout timer.
  */
 struct timespec beginMsgTimer;
 /**
- * \brief ending references of the dependance timers.
+ * \brief ending references of the message timeout timer.
  */
 struct timespec endMsgTimer;
 
@@ -65,54 +66,79 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
 	ccsdsPacketIN.getPrimaryHeader()->setSecondaryHeaderFlag(CCSDSSpacePacketSecondaryHeaderFlag::NotPresent);
 	//set segmentation information
 	ccsdsPacketIN.getPrimaryHeader()->setSequenceFlag(CCSDSSpacePacketSequenceFlag::UnsegmentedUserData);
-	//set Category
-	//ccsdsPacketIN->getSecondaryHeader()->setCategory(category);
-	//set secondary header type (whether ADU Channel presence)
-	//ccsdsPacketIN->getSecondaryHeader()->
-	//setSecondaryHeaderType(CCSDSSpacePacketSecondaryHeaderType::ADUChannelIsUsed);
-	//set ADU Channel ID
-	//ccsdsPacketIN->getSecondaryHeader()->setADUChannelID(0x00);
-	//set ADU Segmentation Flag (whether ADU is segmented)
-	//ccsdsPacketIN->getSecondaryHeader()->setADUSegmentFlag(CCSDSSpacePacketADUSegmentFlag::UnsegmentedADU);
 	//set counters
 	ccsdsPacketIN.getPrimaryHeader()->setSequenceCount(sequenceCount);
-	//ccsdsPacketIN->getSecondaryHeader()->setADUCount(aduCount);
-	//set absolute time
-	//uint8_t time[4];
-	//ccsdsPacketIN->getSecondaryHeader()->setTime(time);
 	//set data
 	ccsdsPacketIN.setUserDataField(dataOut);
 	ccsdsPacketIN.setPacketDataLength();
 	//get packet as byte array
 	std::vector<uint8_t> packet = ccsdsPacketIN.getAsByteVector();
 
-	/*
-	printf("\n\n\n==================================================\n\n\n");
-
-	//constructs an empty instance
-	CCSDSSpacePacket ccsdsPacket;
-
-	//interpret an input data as a CCSDS SpacePacket
-	ccsdsPacket.interpret(packet.data(),packet.size());
-	//check if the packet has Secondary Header
-	if(ccsdsPacket.isSecondaryHeaderPresent()){
-		printf("HAS A SECONDARY HEADER\n");
-	}
-	//get APID
-	std::cout << ccsdsPacket.getPrimaryHeader()->getAPIDAsInteger() << std::endl;
-	//dump packet content
-	std::cout << ccsdsPacket.toString() << std::endl;
-	*/
-
 	return packet;
 }
 
 
 /**
- * \brief function to recieve telecommands from the TT&C subsystem
+ * \brief function to send payload sensor data to
+ * the OBDH subsystem via CAN bus.
  *
  * \return statusErrDef that values:
- * - errReadCANTC when CAN frame can't be read,
+ * - errWriteCANPayload when the CAN frame can't be written,
+ * - noError when the function exits successfully.
+ */
+statusErrDef sendSensorDataToOBDH(const sensorDef sensorId, int32_t sensorValue) {
+    statusErrDef ret = noError;
+
+    // Split sensorId into two bytes
+    uint8_t SensorIdHighByte = (sensorId >> 8) & 0xFF;  // High byte of sensorId
+    uint8_t SensorIdLowByte = sensorId & 0xFF;         // Low byte of sensorId
+
+    // Split sensorValue (32-bit) into four bytes
+    uint8_t SensorValueByte3 = (sensorValue >> 24) & 0xFF;  // Most significant byte
+    uint8_t SensorValueByte2 = (sensorValue >> 16) & 0xFF;
+    uint8_t SensorValueByte1 = (sensorValue >> 8) & 0xFF;
+    uint8_t SensorValueByte0 = sensorValue & 0xFF;         // Least significant byte
+
+    // SENSOR_DATA_SIZE is 7 (1 header + 2 for ID + 4 for value)
+    uint8_t data[SENSOR_DATA_SIZE] = {
+        0xFF,              // Header byte
+        SensorIdHighByte,  // Sensor ID high byte
+        SensorIdLowByte,   // Sensor ID low byte
+        SensorValueByte3,  // Sensor value most significant byte
+        SensorValueByte2,
+        SensorValueByte1,
+        SensorValueByte0   // Sensor value least significant byte
+    };
+
+	// Debug output
+	/*
+	for(int i = 0; i < 7; i++) {
+		printf(" data[%d] : 0x%02X |",i,data[i]);
+	}
+	printf("\n");
+	*/
+
+	struct can_frame frame;  // Use classic CAN frame
+    frame.can_id = CAN_ID_OBDH;
+    frame.can_dlc = SENSOR_DATA_SIZE;  // Data length code (0-8 bytes)
+    memcpy(frame.data, data, SENSOR_DATA_SIZE);
+
+    // Write the frame (use sizeof(struct can_frame))
+    if (write(socket_can, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+        perror("errWriteCANPayload");
+        return errWriteCANPayload;
+    }
+
+	return ret;
+}
+
+
+/**
+ * \brief function to send payload telemetry to the OBDH
+ *
+ * \return statusErrDef that values:
+ * - errCCSDSPacketTooLarge When the CCSDS packet is too large for a CAN frame
+ * - errWriteCANPayload when the CAN frame can't be written,
  * - noError when the function exits successfully.
  */
 statusErrDef sendTelemToOBDH(const statusErrDef statusErr) {
@@ -133,7 +159,7 @@ statusErrDef sendTelemToOBDH(const statusErrDef statusErr) {
     frame.can_dlc = ccsdsPacket.size();  // Data length code (0-8 bytes)
     std::memcpy(frame.data, ccsdsPacket.data(), ccsdsPacket.size());
 
-    // Debug output (optional)
+    // Debug output
     /*
     std::cout << "CAN ID: " << frame.can_id << ", Length: " << (int)frame.can_dlc << std::endl;
     for (size_t i = 0; i < frame.can_dlc; i++) {
@@ -154,7 +180,10 @@ statusErrDef sendTelemToOBDH(const statusErrDef statusErr) {
  * \brief function to recieve telecommands from the TT&C subsystem
  *
  * \return statusErrDef that values:
- * - errReadCANTC when CAN frame can't be read,
+ * - errReadCANTC when CAN frame can't be read
+ * - infoNoDataInCANBuffer when the read CAN function
+ * returns EAGAIN or EWOULDBLOCK when there is no data
+ * in the CAN buffer, we ignore it
  * - noError when the function exits successfully.
  */
 statusErrDef recieveTCFromOBDH() {
@@ -210,6 +239,10 @@ statusErrDef recieveTCFromOBDH() {
  * \brief function to recieve telecommands from the OBDH subsystem.
  *
  * \return statusErrDef that values:
+ * - errReadCANTC when CAN frame can't be read
+ * - infoNoDataInCANBuffer when the read CAN function
+ * returns EAGAIN or EWOULDBLOCK when there is no data
+ * in the CAN buffer, we ignore it
  * - noError when the function exits successfully.
  */
 statusErrDef checkTC() {
@@ -219,6 +252,44 @@ statusErrDef checkTC() {
 	return ret;
 }
 
+/**
+ * \brief function to check the sensor values and send
+ * them to the OBDH subsystem at every sampling time.
+ *
+ * \return statusErrDef that values:
+ * - errWriteCANPayload when the CAN frame can't be written,
+ * - noError when the function exits successfully.
+ */
+statusErrDef checkSensors() {
+    statusErrDef ret = noError;
+    static double nextSendTime = 2.0;  // First send at 2 seconds
+    double currentTime;
+
+    // Get current monotonic time
+    clock_gettime(CLOCK_MONOTONIC, &endSensorSamplingTimer);
+
+    // Calculate elapsed time since program start
+    currentTime = (endSensorSamplingTimer.tv_sec - beginSensorSamplingTimer.tv_sec) +
+                  (endSensorSamplingTimer.tv_nsec - beginSensorSamplingTimer.tv_nsec) / 1e9;
+
+    // Check if we've reached or passed the next scheduled send time
+    if (currentTime >= nextSendTime) {
+		//printf("currentTime: %f\n",currentTime);
+        int32_t sensorValue = counter;  // Get the current sensor value
+        ret = sendSensorDataToOBDH(sensor1, sensorValue);
+
+        // Schedule the next send exactly 2 seconds from the previous target
+        nextSendTime += 2.0;
+    }
+
+    return ret;
+}
+
+/**
+ * \brief function to reset the message timer when
+ * a message has been recieved or when entering
+ * payload mode.
+ */
 void resetMsgTimer() {
 	clock_gettime(CLOCK_MONOTONIC, &beginMsgTimer);
 }

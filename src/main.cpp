@@ -9,6 +9,7 @@
  *
  */
 
+#include <signal.h>
 #include "configDefine.h"
 #include "statesDefine.h"
 #include "init.h"
@@ -17,17 +18,38 @@
 #include "regulate.h"
 #include "restart.h"
 
+stateDef                state = init;
+
+ /**
+  * \brief Exit the program gracefully (freeing all
+  * allocations) when killing or terminating or
+  * CTRL+C the process.
+  */
+void handle_signal(int sig) {
+    if (sig == SIGINT)
+        printf("Caught SIGINT\n");
+    else if (sig == SIGTERM)
+        printf("Caught SIGTERM\n");
+    else if (sig == SIGKILL)
+        printf("Caught SIGKILL\n");
+    state = restart;
+}
+
  /**
   * \brief main function of the program
   *
   * \return 0 if the program exits properly
   */
 int main() {
-    stateDef        state = init;
     statusErrDef    ret = noError;
     int             retryCounter = 0;
     uint16_t        mainStateTCTemp = 0xFFFF;
     struct timespec mainSleep = {0, MAIN_LOOP_TIME};
+
+    // Register the signal handlers
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+    signal(SIGKILL, handle_signal);
 
     while (state != ending) {
         switch (state) {

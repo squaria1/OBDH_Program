@@ -9,6 +9,7 @@
  *
  */
 
+#include <signal.h>
 #include "configDefine.h"
 #include "statesDefine.h"
 #include "init.h"
@@ -17,6 +18,23 @@
 #include "idleMode.h"
 #include "processNav.h"
 #include "restart.h"
+
+stateDef                state = init;
+
+ /**
+  * \brief Exit the program gracefully (freeing all
+  * allocations) when killing or terminating or
+  * CTRL+C the process.
+  */
+void handle_signal(int sig) {
+    if (sig == SIGINT)
+        printf("Caught SIGINT\n");
+    else if (sig == SIGTERM)
+        printf("Caught SIGTERM\n");
+    else if (sig == SIGKILL)
+        printf("Caught SIGKILL\n");
+    state = restart;
+}
 
  /**
   * \brief main function of the program
@@ -29,6 +47,11 @@ int main() {
     int             retryCounter = 0;
     uint16_t        mainStateTCTemp = 0xFFFF;
     struct timespec mainSleep = {0, MAIN_LOOP_TIME};
+
+    // Register the signal handlers
+    signal(SIGINT, handle_signal);
+    signal(SIGTERM, handle_signal);
+    signal(SIGKILL, handle_signal);
 
     while (state != ending) {
         switch (state) {
@@ -82,7 +105,7 @@ int main() {
                 }
             }
 
-            printf("State has been changed to control mode\n");
+            printf("State has been changed to payload mode\n");
             sendTelemToOBDH(infoStateToPayloadMode);
             resetMsgTimer();
             state = payloadMode;
@@ -94,6 +117,15 @@ int main() {
             }
             else {
                 printf("Error check TC! 0x%04X \n", ret);
+                sendTelemToOBDH(ret);
+            }
+
+            ret = checkSensors();
+            if (ret == noError) {
+                //printf("Check sensors OK\n");
+            }
+            else {
+                printf("Error check sensors! 0x%04X \n", ret);
                 sendTelemToOBDH(ret);
             }
 
@@ -162,6 +194,15 @@ int main() {
             }
             else {
                 printf("Error check TC! 0x%04X \n", ret);
+                sendTelemToOBDH(ret);
+            }
+
+            ret = checkSensors();
+            if (ret == noError) {
+                //printf("Check sensors OK\n");
+            }
+            else {
+                printf("Error check sensors! 0x%04X \n", ret);
                 sendTelemToOBDH(ret);
             }
 

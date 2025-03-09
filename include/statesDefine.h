@@ -76,6 +76,8 @@ typedef enum
 	errBindUDPAddr = 0x0E0A,				/**< Bind UDP address to the UDP socket failed. */
 	errAllocParamSensorStruct = 0x0E0B,		/**< paramSensors structure memory allocation failed. */
 	errOpenParamSensorsFile = 0x0E0C,		/**< paramSensors.csv file not found or unable to read. */
+	errAllocSensorsValStruct = 0x0E0D,		/**< sensorsVal structure memory allocation failed. */
+	errOpenSensorsValFile = 0x0E0E,			/**< "sensorId".csv file can't be created. */
 
 	// Safe mode (from 0x0E20 to 0x0E3F)
 

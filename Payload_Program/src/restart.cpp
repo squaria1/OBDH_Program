@@ -29,9 +29,12 @@ statusErrDef closeUDPSocket();
  */
 statusErrDef closeCANSocket() {
 	statusErrDef ret = noError;
+#if USE_VCAN
+#else
 	char sys_cmd_can[CAN_CMD_LENGHT];
 	sprintf(sys_cmd_can, "sudo ip link set %s down", CAN_INTERFACE);
     system(sys_cmd_can);
+#endif
 
 	if (close(socket_can) < 0) {
 		perror("errCloseCANSocket");

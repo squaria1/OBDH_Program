@@ -86,13 +86,13 @@
 /**
  * \brief CAN device name in the Linux device management system.
  */
-#define CAN_INTERFACE "can0"
+#define CAN_INTERFACE "vcan0"
 
 /**
  * \brief Boolean true (1) when vcan0 instead of can0
  * otherwise false (0).
  */
-#define USE_VCAN 0
+#define USE_VCAN 1
 
 /**
  * \brief CAN interface system command maximum length
@@ -127,6 +127,11 @@
  * (8 Bytes maximum for a CAN frame).
  */
 #define DATA_OUT_CAN_MAX_LENGTH 8
+
+/**
+ * \brief Incoming CAN frame size containing sensor data.
+ */
+#define SENSOR_DATA_SIZE 7
 
 /**
  * \brief Number of initialisation or freeing error retries.

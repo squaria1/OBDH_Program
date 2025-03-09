@@ -16,6 +16,7 @@
 //------------------------------------------------------------------------------
 std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut);
 statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> sensorValue);
+statusErrDef manageSensorData(uint8_t *frameData);
 statusErrDef recieveTelemFromSubsystems();
 statusErrDef sendTelemToTTC(std::vector<uint8_t> *telemFromSubystems);
 statusErrDef recieveTCFromTTC();
@@ -62,44 +63,13 @@ std::vector<uint8_t> generateCCSDSPacket(std::vector<uint8_t> dataOut) {
 	ccsdsPacketIN.getPrimaryHeader()->setSecondaryHeaderFlag(CCSDSSpacePacketSecondaryHeaderFlag::NotPresent);
 	//set segmentation information
 	ccsdsPacketIN.getPrimaryHeader()->setSequenceFlag(CCSDSSpacePacketSequenceFlag::UnsegmentedUserData);
-	//set Category
-	//ccsdsPacketIN->getSecondaryHeader()->setCategory(category);
-	//set secondary header type (whether ADU Channel presence)
-	//ccsdsPacketIN->getSecondaryHeader()->
-	//setSecondaryHeaderType(CCSDSSpacePacketSecondaryHeaderType::ADUChannelIsUsed);
-	//set ADU Channel ID
-	//ccsdsPacketIN->getSecondaryHeader()->setADUChannelID(0x00);
-	//set ADU Segmentation Flag (whether ADU is segmented)
-	//ccsdsPacketIN->getSecondaryHeader()->setADUSegmentFlag(CCSDSSpacePacketADUSegmentFlag::UnsegmentedADU);
 	//set counters
 	ccsdsPacketIN.getPrimaryHeader()->setSequenceCount(sequenceCount);
-	//ccsdsPacketIN->getSecondaryHeader()->setADUCount(aduCount);
-	//set absolute time
-	//uint8_t time[4];
-	//ccsdsPacketIN->getSecondaryHeader()->setTime(time);
 	//set data
 	ccsdsPacketIN.setUserDataField(dataOut);
 	ccsdsPacketIN.setPacketDataLength();
 	//get packet as byte array
 	std::vector<uint8_t> packet = ccsdsPacketIN.getAsByteVector();
-
-	/*
-	printf("\n\n\n==================================================\n\n\n");
-
-	//constructs an empty instance
-	CCSDSSpacePacket ccsdsPacket;
-
-	//interpret an input data as a CCSDS SpacePacket
-	ccsdsPacket.interpret(packet.data(),packet.size());
-	//check if the packet has Secondary Header
-	if(ccsdsPacket->isSecondaryHeaderPresent()){
-		printf("HAS A SECONDARY HEADER\n");
-	}
-	//get APID
-	std::cout << ccsdsPacket->getPrimaryHeader()->getAPIDAsInteger() << std::endl;
-	//dump packet content
-	std::cout << ccsdsPacket->toString() << std::endl;
-	*/
 
 	return packet;
 }
@@ -138,8 +108,6 @@ statusErrDef sendTelemToTTC(const statusErrDef statusErr) {
         perror("errWriteUDPTelem");
         return errWriteUDPTelem;  // Error in sending packet
     }
-
-    //std::cout << "Sent " << bytes_sent << " bytes over UDP\n";
 
 	return ret;
 }
@@ -181,6 +149,65 @@ statusErrDef sendTelemToTTC(std::vector<uint8_t> *telemFromSubystems) {
 }
 
 /**
+ * \brief function to decode the sensor data frame and
+ * copy the contents to a sensor file and to the paramSensors struct.
+ *
+ * \param frameData the incoming frame data array of bytes
+ *
+ * \return statusErrDef that values:
+ * - noError when the function exits successfully.
+ */
+statusErrDef manageSensorData(uint8_t *frameData) {
+	statusErrDef ret = noError;
+	uint16_t sensorId = 0x0000;
+	double currentTime = 0;
+    int32_t sensorValue = 0x00000000;
+
+	sensorId = (frameData[1] << 8) | frameData[2];
+	//printf("sensorId:0x%04X \n",(sensorDef)sensorId);
+	if(frameData[3] == 0x00 && frameData[4] == 0x00 && frameData[5] == 0x00) {
+		sensorValue = frameData[6];
+		//printf("Sensor value : 0x%02X \n", sensorValue);
+		ret = sendSensorDataToTTC((sensorDef)sensorId, {frameData[6]});
+	}
+	else if(frameData[3] == 0x00 && frameData[4] == 0x00) {
+		sensorValue = (frameData[5] << 8) | frameData[6];
+		//printf("Sensor value : 0x%04X \n", sensorValue);
+		ret = sendSensorDataToTTC((sensorDef)sensorId, {frameData[5], frameData[6]});
+	}
+	else {
+		sensorValue = (frameData[3] << 24) | (frameData[4] << 16) | (frameData[5] << 8) | frameData[6];
+		//printf("Sensor value : 0x%08X \n", sensorValue);
+		ret = sendSensorDataToTTC((sensorDef)sensorId, {frameData[3], frameData[4], frameData[5], frameData[6]});
+	}
+
+	clock_gettime(CLOCK_MONOTONIC, &endTimeOBDH);
+	currentTime = (endTimeOBDH.tv_sec - beginTimeOBDH.tv_sec) + (endTimeOBDH.tv_nsec - beginTimeOBDH.tv_nsec) / 1e9;
+	//printf("current sensor time: %f\n", currentTime);
+
+	for(int i = 0; i < lineCountSensorParamCSV; i++) {
+		if(paramSensors->id[i] == sensorId)
+			paramSensors->currentValue[i] = sensorValue;
+
+		if(sensorsVal[i].id == sensorId) {
+			//fill the sensorsVal struct
+			sensorsVal[i].timeStamp[sensorsVal[i].currentFileLine] = currentTime;
+			sensorsVal[i].value[sensorsVal[i].currentFileLine] = sensorValue;
+
+			//fill the sensor file
+			fprintf(sensorsVal[i].sensorFile, "%f;%d\n",
+				currentTime,
+				sensorValue);       // Sensor value
+			sensorsVal[i].currentFileLine++;
+			if(sensorsVal[i].currentFileLine > READINGS_PER_SENSOR)
+				sensorsVal[i].currentFileLine = 0;
+		}
+	}
+
+	return ret;
+}
+
+/**
  * \brief function to send telemetry to the TT&C subsystem
  *
  * \param sensor the sensor ID (see statesDefine.h)
@@ -197,6 +224,7 @@ statusErrDef sendSensorDataToTTC(const sensorDef sensor, std::vector<uint8_t> se
     uint8_t categoryLowByte = sensor & 0xFF; // Get the lower byte (8 least significant bits)
 
 	telemOut = {categoryHighByte,categoryLowByte};
+
 	for(int i = 0; i < sensorValue.size(); i++) {
 		telemOut.push_back(sensorValue[i]);
 	}
@@ -251,6 +279,10 @@ void DumpUDPData(uint8_t *data, ssize_t length) {
  * \brief function to recieve telecommands from the TT&C subsystem
  *
  * \return statusErrDef that values:
+ * - errTCToWrongSubsystem the subsystem indicated
+ * in the TC frame is not present in the function switch
+ * - errCCSDSPacketUninterpretable when the CAN frame is
+ * not interpretable as a CCSDS packet
  * - errReadCANTC when CAN frame can't be read,
  * - noError when the function exits successfully.
  */
@@ -318,6 +350,8 @@ statusErrDef recieveTCFromTTC() {
  * \brief function to recieve telemetry from all subsystems
  *
  * \return statusErrDef that values:
+ * - errCCSDSPacketUninterpretable when the CAN frame is
+ * not interpretable as a CCSDS packet
  * - errReadCANTelem when CAN frame can't be read from the Payload subsystem,
  * - noError when the function exits successfully.
  */
@@ -327,8 +361,14 @@ statusErrDef recieveTelemFromSubsystems() {
 
 	ssize_t sizeReceived = read(socket_can, &frame, sizeof(struct can_frame));
     if (sizeReceived > 0) {
-		std::cout << "Received " << sizeReceived << " bytes from a subsystem\n";
-		//constructs an empty instance
+		//std::cout << "Received " << sizeReceived << " bytes from a subsystem\n";
+		if(frame.data[0] == 0xFF)
+		{
+			//printf("Sensor data recieved\n");
+			manageSensorData(frame.data);
+			return ret;
+		}
+
 		CCSDSSpacePacket ccsdsPacket;
 		//interpret an input data as a CCSDS SpacePacket
 		try {
@@ -355,7 +395,6 @@ statusErrDef recieveTelemFromSubsystems() {
     } else {
 		// If there's no data, just continue (EAGAIN or EWOULDBLOCK)
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            // No data available, continue the loop or function
             return infoNoDataInCANBuffer;
         } else {
             perror("errReadCANTelem");
@@ -485,6 +524,7 @@ statusErrDef checkTC() {
 	ret = recieveTCFromTTC();
 	if(ret != noError)
 		return ret;
+	/*
 	ret = sendSensorDataToTTC(sensor1, {counter});
 	if(ret != noError)
 		return ret;
@@ -492,5 +532,6 @@ statusErrDef checkTC() {
 	if(ret != noError)
 		return ret;
 	ret = sendSensorDataToTTC(sensor3, {0xF1, 0xF2, 0xF3, counter});
+	*/
 	return ret;
 }

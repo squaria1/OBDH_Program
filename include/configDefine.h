@@ -86,13 +86,13 @@
 /**
  * \brief CAN device name in the Linux device management system.
  */
-#define CAN_INTERFACE "can0"
+#define CAN_INTERFACE "vcan0"
 
 /**
  * \brief Boolean true (1) when vcan0 instead of can0
  * otherwise false (0).
  */
-#define USE_VCAN 0
+#define USE_VCAN 1
 
 /**
  * \brief CAN interface system command maximum length
@@ -157,13 +157,22 @@
  * \brief TT&C subsytem IP address for telemetry and
  * telecommands with the OBDH subsystem.
  */
-#define TTC_IP_ADDRESS "192.168.10.4"
+//#define TTC_IP_ADDRESS "192.168.10.4"
+#define TTC_IP_ADDRESS "127.0.0.1"
 
 /**
  * \brief Maximum number of sensors in the spacecraft
  * (limited by sensor ID encoding: 0x0900 to 0xE9FF).
  */
 #define MAX_SENSORS 3840
+
+/**
+ * \brief Number of readings per sensor. When there
+ * are more readings done than this number, the oldest
+ * reading is replaced by the newest and so on.
+ *
+ */
+#define READINGS_PER_SENSOR 5
 
 /**
  * \brief Maximum number of characters per column in
@@ -175,7 +184,11 @@
  * \brief paramSensors.csv file path
  * (CSV file containing every spacecraft sensors parameters).
  */
-#define PARAM_SENSORS_CSV_FILEPATH "../paramFiles/paramSensors.csv"
+#define PARAM_SENSORS_CSV_FILENAME "paramSensors.csv"
+
+#define OUTPUT_FILES_DIR "../outputFiles/"
+
+#define MAX_PATH_LENGHT 128
 
 
 #endif

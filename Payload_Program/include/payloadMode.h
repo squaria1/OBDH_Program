@@ -25,12 +25,14 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <time.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
 statusErrDef sendTelemToOBDH(const statusErrDef statusErr);
 statusErrDef checkTC();
+statusErrDef checkSensors();
 statusErrDef recieve5GPackets();
 statusErrDef recieveNavReq();
 void resetMsgTimer();
