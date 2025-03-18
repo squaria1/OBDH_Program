@@ -86,13 +86,14 @@
 /**
  * \brief CAN device name in the Linux device management system.
  */
-#define CAN_INTERFACE "vcan0"
+//#define CAN_INTERFACE "vcan0"
+#define CAN_INTERFACE "can0"
 
 /**
  * \brief Boolean true (1) when vcan0 instead of can0
  * otherwise false (0).
  */
-#define USE_VCAN 1
+#define USE_VCAN 0
 
 /**
  * \brief CAN interface system command maximum length
@@ -157,8 +158,8 @@
  * \brief TT&C subsytem IP address for telemetry and
  * telecommands with the OBDH subsystem.
  */
-//#define TTC_IP_ADDRESS "192.168.10.4"
-#define TTC_IP_ADDRESS "127.0.0.1"
+#define TTC_IP_ADDRESS "192.168.10.4"
+//#define TTC_IP_ADDRESS "127.0.0.1"
 
 /**
  * \brief Maximum number of sensors in the spacecraft
