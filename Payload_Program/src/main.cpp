@@ -42,7 +42,6 @@ void handle_signal(int sig) {
   * \return 0 if the program exits properly
   */
 int main() {
-    stateDef        state = init;
     statusErrDef    ret = noError;
     int             retryCounter = 0;
     uint16_t        mainStateTCTemp = 0xFFFF;
