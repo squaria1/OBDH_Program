@@ -1,14 +1,18 @@
 (kicad_sch
-	(version 20231120)
+	(version 20250114)
 	(generator "eeschema")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(uuid "9779eebb-f8c9-4590-9ea9-bffcdc38d3a0")
 	(paper "A4")
 	(lib_symbols
 		(symbol "Project:C"
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0.254) hide)
+				(offset 0.254)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -68,10 +72,10 @@
 			(symbol "C_0_1"
 				(polyline
 					(pts
-						(xy -1.524 -0.508) (xy 1.524 -0.508)
+						(xy -1.524 0.508) (xy 0 0.508) (xy 1.524 0.508)
 					)
 					(stroke
-						(width 0.3302)
+						(width 0.3048)
 						(type solid)
 					)
 					(fill
@@ -80,10 +84,10 @@
 				)
 				(polyline
 					(pts
-						(xy -1.524 0.508) (xy 0 0.508) (xy 1.524 0.508)
+						(xy -1.524 -0.508) (xy 1.524 -0.508)
 					)
 					(stroke
-						(width 0.3048)
+						(width 0.3302)
 						(type solid)
 					)
 					(fill
@@ -129,11 +133,16 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "mppt-2420-hc-rescue:Fuse_Holder-LibreSolar"
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0.254) hide)
+				(offset 0.254)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -253,11 +262,16 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "mppt-2420-hc-rescue:Fuse_PlugIn-LibreSolar"
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0.254) hide)
+				(offset 0.254)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -314,23 +328,23 @@
 				)
 			)
 			(symbol "Fuse_PlugIn-LibreSolar_0_1"
-				(rectangle
-					(start -2.54 0.762)
-					(end 2.54 -0.762)
-					(stroke
-						(width 0.2032)
-						(type solid)
-					)
-					(fill
-						(type none)
-					)
-				)
 				(polyline
 					(pts
 						(xy -3.81 0) (xy -2.54 0)
 					)
 					(stroke
 						(width 0)
+						(type solid)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -2.54 0.762)
+					(end 2.54 -0.762)
+					(stroke
+						(width 0.2032)
 						(type solid)
 					)
 					(fill
@@ -374,6 +388,7 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "mppt-2420-hc-rescue:GND-power"
 			(power)
@@ -444,7 +459,8 @@
 			(symbol "GND-power_1_1"
 				(pin power_in line
 					(at 0 0 270)
-					(length 0) hide
+					(length 0)
+					(hide yes)
 					(name "GND"
 						(effects
 							(font
@@ -461,12 +477,17 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "mppt-2420-hc-rescue:PWR_FLAG-power"
 			(power)
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0) hide)
+				(offset 0)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -548,6 +569,7 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "mppt-2420-hc-rescue:VBUS-power"
 			(power)
@@ -616,7 +638,7 @@
 				)
 				(polyline
 					(pts
-						(xy 0 0) (xy 0 2.54)
+						(xy 0 2.54) (xy 0.762 1.27)
 					)
 					(stroke
 						(width 0)
@@ -628,7 +650,7 @@
 				)
 				(polyline
 					(pts
-						(xy 0 2.54) (xy 0.762 1.27)
+						(xy 0 0) (xy 0 2.54)
 					)
 					(stroke
 						(width 0)
@@ -642,7 +664,8 @@
 			(symbol "VBUS-power_1_1"
 				(pin power_in line
 					(at 0 0 90)
-					(length 0) hide
+					(length 0)
+					(hide yes)
 					(name "VBUS"
 						(effects
 							(font
@@ -659,12 +682,17 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "power:GND"
 			(power)
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
-				(offset 0) hide)
+				(offset 0)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -755,7 +783,52 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
+	)
+	(text "MPPT: 60V 10A"
+		(exclude_from_sim no)
+		(at 42.672 34.29 0)
+		(effects
+			(font
+				(size 2.032 2.032)
+			)
+			(justify right bottom)
+		)
+		(uuid "0ca1e267-2890-430f-8ce2-09d4e1cb2edc")
+	)
+	(text "Load output: 20A"
+		(exclude_from_sim no)
+		(at 234.95 84.328 0)
+		(effects
+			(font
+				(size 2.032 2.032)
+			)
+			(justify left bottom)
+		)
+		(uuid "91b64e79-323d-4238-8fb0-9ec95bf91614")
+	)
+	(text "MPPT charge controller with HS load switch and CAN"
+		(exclude_from_sim no)
+		(at 43.18 26.67 0)
+		(effects
+			(font
+				(size 5.08 5.08)
+			)
+			(justify left bottom)
+		)
+		(uuid "a30fc346-87c1-4df6-af86-08c6db9156af")
+	)
+	(text "Battery: 12V/24V 20A"
+		(exclude_from_sim no)
+		(at 224.79 41.656 0)
+		(effects
+			(font
+				(size 2.032 2.032)
+			)
+			(justify left bottom)
+		)
+		(uuid "f722e7c7-2cfc-4f4c-b2ac-81259b3e1b98")
 	)
 	(junction
 		(at 215.9 57.15)
@@ -1095,16 +1168,6 @@
 	)
 	(wire
 		(pts
-			(xy 176.53 153.67) (xy 182.88 153.67)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "adc5fc82-e1a0-4546-932f-1c3c110088ae")
-	)
-	(wire
-		(pts
 			(xy 45.72 138.43) (xy 55.88 138.43)
 		)
 		(stroke
@@ -1303,50 +1366,6 @@
 		)
 		(uuid "fc2f7a1e-2c78-4ce1-b830-26eca0c8c369")
 	)
-	(text "MPPT: 60V 10A"
-		(exclude_from_sim no)
-		(at 42.672 34.29 0)
-		(effects
-			(font
-				(size 2.032 2.032)
-			)
-			(justify right bottom)
-		)
-		(uuid "0ca1e267-2890-430f-8ce2-09d4e1cb2edc")
-	)
-	(text "Load output: 20A"
-		(exclude_from_sim no)
-		(at 234.95 84.328 0)
-		(effects
-			(font
-				(size 2.032 2.032)
-			)
-			(justify left bottom)
-		)
-		(uuid "91b64e79-323d-4238-8fb0-9ec95bf91614")
-	)
-	(text "MPPT charge controller with HS load switch and CAN"
-		(exclude_from_sim no)
-		(at 43.18 26.67 0)
-		(effects
-			(font
-				(size 5.08 5.08)
-			)
-			(justify left bottom)
-		)
-		(uuid "a30fc346-87c1-4df6-af86-08c6db9156af")
-	)
-	(text "Battery: 12V/24V 20A"
-		(exclude_from_sim no)
-		(at 224.79 41.656 0)
-		(effects
-			(font
-				(size 2.032 2.032)
-			)
-			(justify left bottom)
-		)
-		(uuid "f722e7c7-2cfc-4f4c-b2ac-81259b3e1b98")
-	)
 	(label "DCDC_HV-"
 		(at 55.88 52.07 0)
 		(effects
@@ -1471,17 +1490,6 @@
 			(justify right)
 		)
 		(uuid "650909c4-d4aa-4ff0-ba9e-607ba6a45901")
-	)
-	(hierarchical_label "BMS_IN+"
-		(shape input)
-		(at 176.53 153.67 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "83e180cd-9fe7-4711-8416-e6ce8c3de109")
 	)
 	(hierarchical_label "LOAD+"
 		(shape output)
@@ -2287,6 +2295,10 @@
 	(sheet
 		(at 76.2 41.91)
 		(size 30.48 43.18)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0)
@@ -2316,93 +2328,93 @@
 		)
 		(pin "V_DCDC_H" output
 			(at 106.68 62.23 0)
+			(uuid "20fe5f5c-0ba7-47fb-a4b5-f79115afc240")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "20fe5f5c-0ba7-47fb-a4b5-f79115afc240")
 		)
 		(pin "V_DCDC_L" output
 			(at 106.68 64.77 0)
+			(uuid "ee73166a-4619-4f1a-9566-5aa67917525a")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "ee73166a-4619-4f1a-9566-5aa67917525a")
 		)
 		(pin "I_DCDC" output
 			(at 106.68 69.85 0)
+			(uuid "2f83d86a-8d2c-4438-98a4-fd536e22a563")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "2f83d86a-8d2c-4438-98a4-fd536e22a563")
 		)
 		(pin "DCDC_HV+" bidirectional
 			(at 76.2 46.99 180)
+			(uuid "d0a41871-929c-4fb4-a5fd-21b31045a4f3")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "d0a41871-929c-4fb4-a5fd-21b31045a4f3")
 		)
 		(pin "DCDC_HV-" bidirectional
 			(at 76.2 52.07 180)
+			(uuid "59ab9009-3cca-4788-ae8c-8ad24e7dafaa")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "59ab9009-3cca-4788-ae8c-8ad24e7dafaa")
 		)
 		(pin "DCDC_LV+" bidirectional
 			(at 106.68 46.99 0)
+			(uuid "012d767f-e2be-4e6a-b252-66f1348ec3f3")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "012d767f-e2be-4e6a-b252-66f1348ec3f3")
 		)
 		(pin "PWM_HS" input
 			(at 106.68 77.47 0)
+			(uuid "bcf9722e-de44-4098-a7ee-1b41f01fb95e")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "bcf9722e-de44-4098-a7ee-1b41f01fb95e")
 		)
 		(pin "PWM_LS" input
 			(at 106.68 80.01 0)
+			(uuid "0055b76b-6be3-4ac4-ab1a-ee80a37bb55e")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "0055b76b-6be3-4ac4-ab1a-ee80a37bb55e")
 		)
 		(pin "I_DCDC_REF" input
 			(at 106.68 72.39 0)
+			(uuid "9603e9a6-7d60-4f0b-9a3d-1fbdfcc79f13")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "9603e9a6-7d60-4f0b-9a3d-1fbdfcc79f13")
 		)
 		(instances
 			(project "EPS"
@@ -2415,6 +2427,10 @@
 	(sheet
 		(at 182.88 133.35)
 		(size 30.48 22.86)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0)
@@ -2444,53 +2460,43 @@
 		)
 		(pin "LV+" input
 			(at 182.88 143.51 180)
+			(uuid "9433c6c4-72de-47cd-89c1-f2e0d31e289c")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "9433c6c4-72de-47cd-89c1-f2e0d31e289c")
 		)
 		(pin "HV+" input
 			(at 182.88 138.43 180)
+			(uuid "49659107-9372-45b3-84e7-49a7fd6aaf5b")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "49659107-9372-45b3-84e7-49a7fd6aaf5b")
 		)
 		(pin "CP_PWM" input
 			(at 182.88 148.59 180)
+			(uuid "3c5bee72-9607-48ba-988f-87a9762e1b17")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "3c5bee72-9607-48ba-988f-87a9762e1b17")
 		)
 		(pin "CP_OUT" output
 			(at 213.36 138.43 0)
+			(uuid "b8f3ebec-b5f9-4c86-93a5-ceb37c705911")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "b8f3ebec-b5f9-4c86-93a5-ceb37c705911")
-		)
-		(pin "BMS_IN+" input
-			(at 182.88 153.67 180)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-			(uuid "00904465-a040-4421-927d-a142abb62f1c")
 		)
 		(instances
 			(project "EPS"
@@ -2503,6 +2509,10 @@
 	(sheet
 		(at 76.2 120.65)
 		(size 30.48 27.94)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0)
@@ -2532,73 +2542,73 @@
 		)
 		(pin "CAN_TX" input
 			(at 106.68 128.27 0)
+			(uuid "e6d91e44-2934-4446-b756-c1b947c943d9")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "e6d91e44-2934-4446-b756-c1b947c943d9")
 		)
 		(pin "CAN_RX" output
 			(at 106.68 130.81 0)
+			(uuid "8c519c43-96d2-4e7c-9179-35c2acd83ccd")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "8c519c43-96d2-4e7c-9179-35c2acd83ccd")
 		)
 		(pin "CAN_STB" input
 			(at 106.68 138.43 0)
+			(uuid "a494ba33-c3c6-4635-993e-de99d2b8c401")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "a494ba33-c3c6-4635-993e-de99d2b8c401")
 		)
 		(pin "CAN_GND" input
 			(at 76.2 138.43 180)
+			(uuid "a6a1f36b-ecdb-4589-b08d-070b4b8c909d")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "a6a1f36b-ecdb-4589-b08d-070b4b8c909d")
 		)
 		(pin "CAN_PWR" output
 			(at 76.2 130.81 180)
+			(uuid "62203dd0-398c-423f-b5ba-526ddb1c5f28")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "62203dd0-398c-423f-b5ba-526ddb1c5f28")
 		)
 		(pin "CAN_MPPT_P" bidirectional
 			(at 76.2 140.97 180)
+			(uuid "7e97135b-1398-484d-a16e-68ac1100dae0")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "7e97135b-1398-484d-a16e-68ac1100dae0")
 		)
 		(pin "CAN_MPPT_N" bidirectional
 			(at 76.2 143.51 180)
+			(uuid "6a132484-cb42-4a8d-98db-5ff6222208bd")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "6a132484-cb42-4a8d-98db-5ff6222208bd")
 		)
 		(instances
 			(project "EPS"
@@ -2611,6 +2621,10 @@
 	(sheet
 		(at 182.88 77.47)
 		(size 30.48 40.64)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0)
@@ -2640,63 +2654,63 @@
 		)
 		(pin "LOAD+" bidirectional
 			(at 213.36 82.55 0)
+			(uuid "e8d2baee-5518-4fe8-9068-0c70bc387caf")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "e8d2baee-5518-4fe8-9068-0c70bc387caf")
 		)
 		(pin "LOAD_DIS" input
 			(at 182.88 97.79 180)
+			(uuid "e7da5906-8f43-43dd-a59a-b4562a2f60ff")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "e7da5906-8f43-43dd-a59a-b4562a2f60ff")
 		)
 		(pin "I_LOAD" output
 			(at 182.88 92.71 180)
+			(uuid "b98f4829-c52e-4178-8d62-d8898a213b63")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "b98f4829-c52e-4178-8d62-d8898a213b63")
 		)
 		(pin "I_LOAD_COMP" output
 			(at 182.88 95.25 180)
+			(uuid "b45c58f2-e732-40c0-8bd2-c6c0370b6ea3")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "b45c58f2-e732-40c0-8bd2-c6c0370b6ea3")
 		)
 		(pin "DCDC_LV+" bidirectional
 			(at 182.88 82.55 180)
+			(uuid "8701ed64-2cc9-4c06-a4b7-9c6ce7bb7fb7")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "8701ed64-2cc9-4c06-a4b7-9c6ce7bb7fb7")
 		)
 		(pin "CP_OUT" input
 			(at 213.36 113.03 0)
+			(uuid "e0df8e0b-e2d9-476b-a629-58a424032409")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "e0df8e0b-e2d9-476b-a629-58a424032409")
 		)
 		(instances
 			(project "EPS"
@@ -2709,6 +2723,10 @@
 	(sheet
 		(at 127 57.15)
 		(size 35.56 99.06)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
 		(fields_autoplaced yes)
 		(stroke
 			(width 0)
@@ -2738,133 +2756,133 @@
 		)
 		(pin "TIM1_CH1" output
 			(at 127 77.47 180)
+			(uuid "c5d43e3e-cb1a-4a29-87f0-3fbc98f0110d")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "c5d43e3e-cb1a-4a29-87f0-3fbc98f0110d")
 		)
 		(pin "TIM1_CH1N" output
 			(at 127 80.01 180)
+			(uuid "c90888ed-8fa1-401a-94d0-c8f45018a18d")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "c90888ed-8fa1-401a-94d0-c8f45018a18d")
 		)
 		(pin "DAC1" output
 			(at 127 72.39 180)
+			(uuid "1579beaf-40c0-4d2f-9562-3fce2a0d7003")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "1579beaf-40c0-4d2f-9562-3fce2a0d7003")
 		)
 		(pin "ADC1_IN15" input
 			(at 127 62.23 180)
+			(uuid "cf320709-6601-47df-bc42-38655bd29070")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "cf320709-6601-47df-bc42-38655bd29070")
 		)
 		(pin "ADC1_IN12" input
 			(at 127 64.77 180)
+			(uuid "606b7ee6-4d60-44b9-8497-44dfacbe17a6")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "606b7ee6-4d60-44b9-8497-44dfacbe17a6")
 		)
 		(pin "FDCAN1_RX" input
 			(at 127 130.81 180)
+			(uuid "ef59f1c1-e1d1-4a4f-a62b-63562e5631d5")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "ef59f1c1-e1d1-4a4f-a62b-63562e5631d5")
 		)
 		(pin "FDCAN1_TX" output
 			(at 127 128.27 180)
+			(uuid "1bfd0f9c-d51c-4d76-878f-d577a6528b48")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "1bfd0f9c-d51c-4d76-878f-d577a6528b48")
 		)
 		(pin "TIM8_CH2" output
 			(at 162.56 148.59 0)
+			(uuid "24f542b0-5622-46c0-9f9a-5a1336a240ce")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "24f542b0-5622-46c0-9f9a-5a1336a240ce")
 		)
 		(pin "COMP2_INP" input
 			(at 162.56 95.25 0)
+			(uuid "d4e446d5-63c3-499a-aa31-f1759fb48dd5")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "d4e446d5-63c3-499a-aa31-f1759fb48dd5")
 		)
 		(pin "GPIOB_11" output
 			(at 127 138.43 180)
+			(uuid "d5b810ae-55cf-4039-aeb2-fa8f45eda6a6")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "d5b810ae-55cf-4039-aeb2-fa8f45eda6a6")
 		)
 		(pin "GPIOB_2" output
 			(at 162.56 97.79 0)
+			(uuid "4a904161-562f-4186-aa1c-7fb27100ff15")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "4a904161-562f-4186-aa1c-7fb27100ff15")
 		)
 		(pin "ADC12_IN1" input
 			(at 127 69.85 180)
+			(uuid "3c039848-9d42-4b53-839e-13e3e3addcb1")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
 			)
-			(uuid "3c039848-9d42-4b53-839e-13e3e3addcb1")
 		)
 		(pin "ADC12_IN2" input
 			(at 162.56 92.71 0)
+			(uuid "4e919165-4c7e-437c-b3bc-544a44aabe45")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "4e919165-4c7e-437c-b3bc-544a44aabe45")
 		)
 		(instances
 			(project "EPS"

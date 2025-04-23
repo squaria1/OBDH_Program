@@ -1,0 +1,25 @@
+var config_define_8h =
+[
+    [ "CAN_CMD_LENGHT", "config_define_8h.html#a60ede73975d929bfdc435935c448098d", null ],
+    [ "CAN_ID_BROADCAST", "config_define_8h.html#ac01b3012bac4cfbf5b813260e548af41", null ],
+    [ "CAN_ID_OBDH", "config_define_8h.html#a8eaf4d29eb21365e5cd8e1266fdeefcc", null ],
+    [ "CAN_ID_PAYLOAD", "config_define_8h.html#a918962ab79592c61ae9bb5af262c7a92", null ],
+    [ "CAN_INTERFACE", "config_define_8h.html#aaee765557b6cf47db132c3bdf11db01c", null ],
+    [ "CAN_SOCKET_BUFFER_SIZE", "config_define_8h.html#a85a06784e36dcfc573ef880a2fd0113a", null ],
+    [ "DATA_OUT_CAN_MAX_LENGTH", "config_define_8h.html#a48d138ab4348fca3481ed0baad28d9e9", null ],
+    [ "ERROR_RETRY_TIME", "config_define_8h.html#aeecb95fc0a7408487b4296fdae13d4c9", null ],
+    [ "MAIN_LOOP_TIME", "config_define_8h.html#a0d37b92d3bfe96847e94e901a212e875", null ],
+    [ "MAX_CSV_LINE_SIZE", "config_define_8h.html#aa7470c1850b07fa550b937fc3d73b8d8", null ],
+    [ "MAX_PATH_LENGHT", "config_define_8h.html#a624efb18651f657e4358979594d4048d", null ],
+    [ "MAX_SENSORS", "config_define_8h.html#aa3d1fc2927eec213e6b5f9e854c392d2", null ],
+    [ "NB_RETRIES", "config_define_8h.html#ac2a26a55eef0565236a25cac0db2d38f", null ],
+    [ "OUTPUT_FILES_DIR", "config_define_8h.html#a30c0fc04b950a27e73f6659eedaf2049", null ],
+    [ "PARAM_SENSORS_CSV_FILENAME", "config_define_8h.html#af33241fc567c7c18507f7e589b74490f", null ],
+    [ "READINGS_PER_SENSOR", "config_define_8h.html#a2dad87788bb43700ba4d8590b5a289cd", null ],
+    [ "TTC_IP_ADDRESS", "config_define_8h.html#a3e07f66237687c481fbaad8c387512f8", null ],
+    [ "UDP_MAX_BUFFER_SIZE", "config_define_8h.html#a7ffe972e4f939b13d105937b6340f54b", null ],
+    [ "UDP_SOCKET_BUFFER_SIZE", "config_define_8h.html#a76e7da433e2ad009ed4b37fcca9a6649", null ],
+    [ "UDP_TELECOMMAND_PORT", "config_define_8h.html#a4c82f8a93b87f2d24123e13ff5cbfa15", null ],
+    [ "UDP_TELEMETRY_PORT", "config_define_8h.html#a5c838c8c50e0b92ab6692879efb8cb12", null ],
+    [ "USE_VCAN", "config_define_8h.html#ab01e682ba1eb448285901349a16bbded", null ]
+];
